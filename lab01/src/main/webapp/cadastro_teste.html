@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Teste MySQL</title>
+</head>
+<body>
+    <h2>Inserir Pessoa</h2>
+    <form action="InserirServlet" method="post">
+        Nome: <input type="text" name="nome"><br><br>
+        Email: <input type="text" name="email"><br><br>
+        <input type="submit" value="Inserir">
+    </form>
+
+    <h2>Consultar</h2>
+    <a href="ConsultarServlet">Ver todos</a>
+</body>
+</html>
+
+<!-- rodar em http://localhost:8080/lab01/cadastro_teste.html -->
+<!--
+    queries usadas no MySQL Workbench:
+
+    CREATE DATABASE lab01;
+    USE lab01;
+    CREATE TABLE pessoas (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(100),
+        email VARCHAR(100)
+    );
+-->
