@@ -1,4 +1,4 @@
-package lab01;
+package lab00;
 
 import java.io.*;
 import java.sql.*;
@@ -18,7 +18,7 @@ public class InserirServlet extends HttpServlet {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection conn = DriverManager.getConnection(
-            	    "jdbc:mysql://localhost:3306/lab01", "root", "admin");
+            	    "jdbc:mysql://localhost:3306/lab00", "root", "admin");
 
             PreparedStatement ps = conn.prepareStatement(
                 "INSERT INTO pessoas (nome, email) VALUES (?, ?)");
