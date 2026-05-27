@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Cave Fontana </title>
+    <script src="consultaIntegrante.js"></script>
+</head>
+<body>
+
+    <h2>Cadastro de Clientes - Cave Fontana</h2>
+
+    <form style="background-color: #b661c2; border: 7px solid #3a0319;" action="#" method="POST">
+        <label for="nome_cliente">Nome Completo:</label><br>
+        <input type="text" id="nome_cliente" name="nome_cliente" placeholder="Digite seu nome completo" required><br><br>
+
+        <label for="email_cliente">E-mail Pessoal:</label><br>
+        <input type="email" id="email_cliente" name="email_cliente" placeholder="Digite seu e-mail principal" required><br><br>
+
+        <label for="senha_cliente">Senha de Acesso:</label><br>
+        <input type="password" id="senha_cliente" name="senha_cliente" placeholder="Crie uma senha segura"><br><br>
+
+        <label for="preferencia_vinhos">Estilo de Vinho Favorito:</label><br>
+        <select id="preferencia_vinhos" name="preferencia_vinhos">
+            <option value="tintos_encorpados">Tintos Encorpados e Clássicos</option>
+            <option value="brancos_leves">Brancos Leves e Aromáticos</option>
+            <option value="champagnes">Champagnes e Espumantes Finos</option>
+            <option value="rosés">Rosés Delicados</option>
+        </select><br><br>
+
+        <input type="checkbox" id="termos_uso" name="termos_uso" required>
+        <label for="termos_uso">Aceito os termos de uso da Cave Fontana</label><br><br>
+
+        <button type="submit" name="btn_envio">Envio</button>
+        <button type="reset" name="btn_limpar">Limpar</button>
+      </form>
+
+      <h2>Consulta de Integrantes - Cave Fontana</h2>
+
+    <form style="background-color: #b661c2; border: 7px solid #3a0319; padding: 20px;" action="#" method="POST">
+        <label for="matricula_busca">Número de Matrícula:</label><br>
+        <input type="text" id="matricula_busca" name="matricula_busca" placeholder="Ex.: 20240001"><br><br>
+
+        <button type="button" name="btn_buscar" onclick="buscarFoto()">Pesquisar</button>
+
+        <h3>Resultado da Pesquisa</h3>
+        <p id="resultado_busca">Nenhuma pesquisa realizada ainda.</p>
+    </form>
+
+</body>
+</html>
