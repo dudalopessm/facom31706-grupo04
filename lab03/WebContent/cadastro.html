@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Cave Fontana </title>
+    <script src="cadastro.js" defer></script>
+    <script src="consultaIntegrante.js" defer></script>
+</head>
+<body bgcolor="#63082b" text="#ffffff">
+
+    <h1>Cadastro do Cliente - Cave Fontana</h1>
+
+    <form style="color: #2b2427; background-color: #F8EDE3; border: 7px solid #350a06; padding: 20px;" action="#" method="POST">
+        <label for="nome_usuario">Nome/Usuário:</label><br>
+        <input type="text" id="nome_usuario" name="nome_usuario" placeholder="Digite seu nome ou usuário" required autofocus><br><br>
+
+        <label for="email">E-mail:</label><br>
+        <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required><br><br>
+
+        <label for="senha">Senha:</label><br>
+        <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required><br><br>
+
+        <label for="preferencia_vinho">Preferência de Vinho:</label><br>
+        <select id="preferencia_vinho" name="preferencia_vinho" required>
+            <option value="">Selecione uma preferência</option>
+            <option value="tintos_encorpados">Tintos Encorpados e Clássicos</option>
+            <option value="brancos_leves">Brancos Leves e Aromáticos</option>
+            <option value="champagnes">Champagnes e Espumantes Finos</option>
+            <option value="roses">Rosés Delicados</option>
+        </select><br><br>
+
+        <button type="button" name="btn_cadastrar" onclick="cadastrarCliente()">Cadastrar Cliente</button>
+
+        <div id="relatorio_cadastro"></div>
+        <img id="imagem_selecao" style="display: none;" alt="Imagem da preferência de vinho">
+    </form>
+
+    <h1>Consulta de Funcionários - Cave Fontana</h1>
+
+    <form style="color:#2b2427; background-color: #F8EDE3; border: 7px solid #350a06; padding: 20px;" action="#" method="POST">
+        <label for="matricula_busca">Número de Matrícula:</label><br>
+        <input type="text" id="matricula_busca" name="matricula_busca" placeholder="Ex.: 12311BCC033"><br><br>
+
+        <button type="button" name="btn_buscar" onclick="buscarFoto()">Pesquisar</button>
+
+        <h3>Resultado da Pesquisa</h3>
+        <p id="resultado_busca">Nenhuma pesquisa realizada ainda.</p>
+    </form>
+
+</body>
+</html>
