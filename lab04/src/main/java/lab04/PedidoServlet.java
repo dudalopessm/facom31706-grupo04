@@ -3,6 +3,7 @@ package lab04;
 import java.io.*;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Objects;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
@@ -77,13 +78,20 @@ public class PedidoServlet extends HttpServlet {
                 pAlterar.setId(1);
                 pAlterar.setIdCliente(1);
                 pAlterar.setStatus("enviado");
-                boolean alterado = dao.altera(pAlterar);
-                if (alterado) {
-                    out.println("<h2>Pedido alterado com sucesso!</h2>");
-                    out.println("<p>Pedido id=1 atualizado: status 'enviado'</p>");
-                } else {
+
+                Pedido atual = dao.buscaPorId(pAlterar.getId());
+
+                if (atual == null) {
                     out.println("<h2>Registro não encontrado.</h2>");
                     out.println("<p>Nenhum pedido com id=1 existe na base.</p>");
+                } else if (atual.getIdCliente() == pAlterar.getIdCliente()
+                        && Objects.equals(atual.getStatus(), pAlterar.getStatus())) {
+                    out.println("<h2>Nenhuma alteração foi feita.</h2>");
+                    out.println("<p>A tabela permaneceu a mesma.</p>");
+                } else {
+                    dao.altera(pAlterar);
+                    out.println("<h2>Pedido alterado com sucesso!</h2>");
+                    out.println("<p>Pedido id=1 atualizado: status 'enviado'</p>");
                 }
 
 
@@ -91,14 +99,15 @@ public class PedidoServlet extends HttpServlet {
             	Pedido pedido = new Pedido();
                 pedido.setId(1);
                 if (dao.possuiItens(pedido.getId())) {
-                    out.println("Não é possível remover este pedido, pois ele possui itens cadastrados.");
-                    return;
-                }
-                boolean removido = dao.remove(pedido);
-                if (removido) {
-                    out.println("Pedido removido com sucesso!");
+                    out.println("<h2>Não é possível remover este pedido.</h2>");
+                    out.println("<p>Ele possui itens cadastrados.</p>");
                 } else {
-                    out.println("Pedido não encontrado.");
+                    boolean removido = dao.remove(pedido);
+                    if (removido) {
+                        out.println("<h2>Pedido removido com sucesso!</h2>");
+                    } else {
+                        out.println("<h2>Pedido não encontrado.</h2>");
+                    }
                 }
             } else {
                 List<Pedido> pedidos = dao.getLista();

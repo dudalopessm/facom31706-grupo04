@@ -3,6 +3,7 @@ package lab04;
 import java.io.*;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Objects;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
@@ -63,26 +64,36 @@ public class VinhoServlet extends HttpServlet {
                 vAlterar.setSafra(2017);
                 vAlterar.setPreco(159.90);
                 vAlterar.setIdCategoria(1);
-                boolean alterado = dao.altera(vAlterar);
-                if (alterado) {
-                    out.println("<h2>Vinho alterado com sucesso!</h2>");
-                    out.println("<p>Vinho id=1 atualizado para: Cabernet Sauvignon Gran Reserva (2017, R$ 159,90)</p>");
-                } else {
+
+                Vinho atual = dao.buscaPorId(vAlterar.getId());
+
+                if (atual == null) {
                     out.println("<h2>Registro não encontrado.</h2>");
                     out.println("<p>Nenhum vinho com id=1 existe na base.</p>");
+                } else if (Objects.equals(atual.getNome(), vAlterar.getNome())
+                        && atual.getSafra() == vAlterar.getSafra()
+                        && atual.getPreco() == vAlterar.getPreco()
+                        && atual.getIdCategoria() == vAlterar.getIdCategoria()) {
+                    out.println("<h2>Nenhuma alteração foi feita.</h2>");
+                    out.println("<p>A tabela permaneceu a mesma.</p>");
+                } else {
+                    dao.altera(vAlterar);
+                    out.println("<h2>Vinho alterado com sucesso!</h2>");
+                    out.println("<p>Vinho id=1 atualizado para: Cabernet Sauvignon Gran Reserva (2017, R$ 159,90)</p>");
                 }
             } else if ("remover".equals(acao)) {
                 Vinho vinho = new Vinho();
                 vinho.setId(1);
                 if (dao.possuiItensPedido(vinho.getId())) {
-                    out.println("Não é possível remover este vinho, pois ele faz parte de um ou mais pedidos.");
-                    return;
-                }
-                boolean removido = dao.remove(vinho);
-                if (removido) {
-                    out.println("Vinho removido com sucesso!");
+                    out.println("<h2>Não é possível remover este vinho.</h2>");
+                    out.println("<p>Ele faz parte de um ou mais pedidos.</p>");
                 } else {
-                    out.println("Vinho não encontrado.");
+                    boolean removido = dao.remove(vinho);
+                    if (removido) {
+                        out.println("<h2>Vinho removido com sucesso!</h2>");
+                    } else {
+                        out.println("<h2>Vinho não encontrado.</h2>");
+                    }
                 }
             } else {
                 List<Vinho> vinhos = dao.getLista();

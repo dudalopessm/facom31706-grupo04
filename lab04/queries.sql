@@ -44,8 +44,8 @@ CREATE TABLE item_pedido (
 
 DROP TABLE item_pedido;
 DROP TABLE pedido;
-DROP TABLE categoria_vinho;
 DROP TABLE cliente;
 DROP TABLE vinho;
+DROP TABLE categoria_vinho;
 
 DROP DATABASE lab04;

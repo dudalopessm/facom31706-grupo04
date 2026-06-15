@@ -34,36 +34,40 @@
         <div class="card-head"><i class="ti ti-tag"></i><span>Categorias de vinho</span></div>
         <div class="actions">
           <a class="btn primary" href="CategoriaVinhoServlet"><i class="ti ti-list"></i> Listar</a>
-          <button class="btn inserir" onclick="inserir(this, 'CategoriaVinhoServlet?acao=inserir', 'cat')"><i class="ti ti-plus"></i> Inserir</button>
+          <a class="btn" href="CategoriaVinhoServlet?acao=inserir"><i class="ti ti-edit"></i> Inserir</a>
           <a class="btn" href="CategoriaVinhoServlet?acao=alterar"><i class="ti ti-edit"></i> Alterar</a>
           <a class="btn" href="CategoriaVinhoServlet?acao=remover"><i class="ti ti-trash"></i> Remover</a>
+          <span class="insert-status" id="cat-status"></span>
         </div>
       </div>
       <div class="card">
         <div class="card-head"><i class="ti ti-bottle"></i><span>Vinhos</span></div>
         <div class="actions">
           <a class="btn primary" href="VinhoServlet"><i class="ti ti-list"></i> Listar</a>
-          <button class="btn inserir" onclick="inserir(this, 'VinhoServlet?acao=inserir', 'vinho')"><i class="ti ti-plus"></i> Inserir</button>
+          <a class="btn" href="VinhoServlet?acao=inserir"><i class="ti ti-edit"></i> Inserir</a>
           <a class="btn" href="VinhoServlet?acao=alterar"><i class="ti ti-edit"></i> Alterar</a>
           <a class="btn" href="VinhoServlet?acao=remover"><i class="ti ti-trash"></i> Remover</a>
+          <span class="insert-status" id="vinho-status"></span>
         </div>
       </div>
       <div class="card">
         <div class="card-head"><i class="ti ti-user"></i><span>Clientes</span></div>
         <div class="actions">
           <a class="btn primary" href="ClienteServlet"><i class="ti ti-list"></i> Listar</a>
-          <button class="btn inserir" onclick="inserir(this, 'ClienteServlet?acao=inserir', 'cliente')"><i class="ti ti-plus"></i> Inserir</button>
+         <a class="btn" href="ClienteServlet?acao=inserir"><i class="ti ti-edit"></i> Inserir</a>
           <a class="btn" href="ClienteServlet?acao=alterar"><i class="ti ti-edit"></i> Alterar</a>
           <a class="btn" href="ClienteServlet?acao=remover"><i class="ti ti-trash"></i> Remover</a>
+          <span class="insert-status" id="cliente-status"></span>
         </div>
       </div>
       <div class="card">
         <div class="card-head"><i class="ti ti-shopping-cart"></i><span>Pedidos e itens</span></div>
         <div class="actions">
           <a class="btn primary" href="PedidoServlet"><i class="ti ti-list"></i> Listar</a>
-          <button class="btn inserir" onclick="inserir(this, 'PedidoServlet?acao=inserir', 'pedido')"><i class="ti ti-plus"></i> Inserir</button>
+          <a class="btn" href="PedidoServlet?acao=inserir"><i class="ti ti-edit"></i> Inserir</a>
           <a class="btn" href="PedidoServlet?acao=alterar"><i class="ti ti-edit"></i> Alterar</a>
           <a class="btn" href="PedidoServlet?acao=remover"><i class="ti ti-trash"></i> Remover</a>
+          <span class="insert-status" id="pedido-status"></span>
         </div>
       </div>
     </div>

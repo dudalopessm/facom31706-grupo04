@@ -59,6 +59,30 @@ public class PedidoDao {
         return pedidos;
     }
 
+    public Pedido buscaPorId(int id) {
+        String sql = "SELECT * FROM pedido WHERE id=?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            Pedido pedido = null;
+            if (rs.next()) {
+                pedido = new Pedido();
+                pedido.setId(rs.getInt("id"));
+                pedido.setIdCliente(rs.getInt("id_cliente"));
+                pedido.setDataPedido(rs.getString("data_pedido"));
+                pedido.setStatus(rs.getString("status"));
+            }
+
+            rs.close();
+            stmt.close();
+            return pedido;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean altera(Pedido pedido) {
         String sql = "UPDATE pedido SET id_cliente=?, status=? WHERE id=?";
         try {

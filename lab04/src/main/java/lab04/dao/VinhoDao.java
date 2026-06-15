@@ -55,6 +55,31 @@ public class VinhoDao {
         return vinhos;
     }
 
+    public Vinho buscaPorId(int id) {
+        String sql = "SELECT * FROM vinho WHERE id=?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            Vinho vinho = null;
+            if (rs.next()) {
+                vinho = new Vinho();
+                vinho.setId(rs.getInt("id"));
+                vinho.setNome(rs.getString("nome"));
+                vinho.setSafra(rs.getInt("safra"));
+                vinho.setPreco(rs.getDouble("preco"));
+                vinho.setIdCategoria(rs.getInt("id_categoria"));
+            }
+
+            rs.close();
+            stmt.close();
+            return vinho;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean altera(Vinho vinho) {
         String sql = "UPDATE vinho SET nome=?, safra=?, preco=?, id_categoria=? WHERE id=?";
         try {

@@ -3,6 +3,7 @@ package lab04;
 import java.io.*;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Objects;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
@@ -61,26 +62,35 @@ public class ClienteServlet extends HttpServlet {
                 cliAlterar.setNome("Joao Marcos");
                 cliAlterar.setEmail("joao.marcos@cavefontana.com");
                 cliAlterar.setSenha("novaSenha123");
-                boolean alterado = dao.altera(cliAlterar);
-                if (alterado) {
-                    out.println("<h2>Cliente alterado com sucesso!</h2>");
-                    out.println("<p>Cliente id=1 atualizado para: Joao Marcos</p>");
-                } else {
+
+                Cliente atual = dao.buscaPorId(cliAlterar.getId());
+
+                if (atual == null) {
                     out.println("<h2>Registro não encontrado.</h2>");
                     out.println("<p>Nenhum cliente com id=1 existe na base.</p>");
+                } else if (Objects.equals(atual.getNome(), cliAlterar.getNome())
+                        && Objects.equals(atual.getEmail(), cliAlterar.getEmail())
+                        && Objects.equals(atual.getSenha(), cliAlterar.getSenha())) {
+                    out.println("<h2>Nenhuma alteração foi feita.</h2>");
+                    out.println("<p>A tabela permaneceu a mesma.</p>");
+                } else {
+                    dao.altera(cliAlterar);
+                    out.println("<h2>Cliente alterado com sucesso!</h2>");
+                    out.println("<p>Cliente id=1 atualizado para: Joao Marcos</p>");
                 }
             } else if ("remover".equals(acao)) {
                 Cliente cliente = new Cliente();
                 cliente.setId(1);
                 if (dao.possuiPedidos(cliente.getId())) {
-                    out.println("Não é possível remover este cliente, pois ele possui pedidos cadastrados.");
-                    return;
-                }
-                boolean removido = dao.remove(cliente);
-                if (removido) {
-                    out.println("Cliente removido com sucesso!");
+                    out.println("<h2>Não é possível remover este cliente.</h2>");
+                    out.println("<p>Ele possui pedidos cadastrados.</p>");
                 } else {
-                    out.println("Cliente não encontrado.");
+                    boolean removido = dao.remove(cliente);
+                    if (removido) {
+                        out.println("<h2>Cliente removido com sucesso!</h2>");
+                    } else {
+                        out.println("<h2>Cliente não encontrado.</h2>");
+                    }
                 }
             } else {
                 List<Cliente> clientes = dao.getLista();

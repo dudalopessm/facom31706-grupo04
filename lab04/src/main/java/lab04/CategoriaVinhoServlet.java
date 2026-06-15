@@ -3,6 +3,7 @@ package lab04;
 import java.io.*;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Objects;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
@@ -59,27 +60,35 @@ public class CategoriaVinhoServlet extends HttpServlet {
                 catAlterar.setId(1);
                 catAlterar.setNome("Tintos Encorpados Premium");
                 catAlterar.setDescricao("Vinhos tintos encorpados de alta qualidade");
-                boolean alterado = dao.altera(catAlterar);
-                if (alterado) {
-                    out.println("<h2>Categoria alterada com sucesso!</h2>");
-                    out.println("<p>Categoria id=1 atualizada para: Tintos Encorpados Premium</p>");
-                } else {
+
+                CategoriaVinho atual = dao.buscaPorId(catAlterar.getId());
+
+                if (atual == null) {
                     out.println("<h2>Registro não encontrado.</h2>");
                     out.println("<p>Nenhuma categoria com id=1 existe na base.</p>");
+                } else if (Objects.equals(atual.getNome(), catAlterar.getNome())
+                        && Objects.equals(atual.getDescricao(), catAlterar.getDescricao())) {
+                    out.println("<h2>Nenhuma alteração foi feita.</h2>");
+                    out.println("<p>A tabela permaneceu a mesma.</p>");
+                } else {
+                    dao.altera(catAlterar);
+                    out.println("<h2>Categoria alterada com sucesso!</h2>");
+                    out.println("<p>Categoria id=1 atualizada para: Tintos Encorpados Premium</p>");
                 }
             } else if ("remover".equals(acao)) {
                 CategoriaVinho catRemover = new CategoriaVinho();
                 catRemover.setId(4);
                 if (dao.possuiVinhos(catRemover.getId())) {
-                    out.println("Não é possível remover esta categoria, pois existem vinhos cadastrados nela.");
-                    return;
-                }
-                boolean removido = dao.remove(catRemover);
-                if (removido) {
-                    out.println("<h2>Categoria removida com sucesso.</h2>");
+                    out.println("<h2>Não é possível remover esta categoria.</h2>");
+                    out.println("<p>Existem vinhos cadastrados nela.</p>");
                 } else {
-                    out.println("<h2>Categoria não encontrada.</h2>");
-                    out.println("<p>Nenhuma categoria com id=4 existe na base.</p>");
+                    boolean removido = dao.remove(catRemover);
+                    if (removido) {
+                        out.println("<h2>Categoria removida com sucesso.</h2>");
+                    } else {
+                        out.println("<h2>Categoria não encontrada.</h2>");
+                        out.println("<p>Nenhuma categoria com id=4 existe na base.</p>");
+                    }
                 }
             } else {
                 List<CategoriaVinho> categorias = dao.getLista();

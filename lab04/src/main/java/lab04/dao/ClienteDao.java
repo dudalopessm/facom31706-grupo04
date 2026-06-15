@@ -53,6 +53,30 @@ public class ClienteDao {
         return clientes;
     }
 
+    public Cliente buscaPorId(int id) {
+        String sql = "SELECT * FROM cliente WHERE id=?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            Cliente cliente = null;
+            if (rs.next()) {
+                cliente = new Cliente();
+                cliente.setId(rs.getInt("id"));
+                cliente.setNome(rs.getString("nome"));
+                cliente.setEmail(rs.getString("email"));
+                cliente.setSenha(rs.getString("senha"));
+            }
+
+            rs.close();
+            stmt.close();
+            return cliente;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean altera(Cliente cliente) {
         String sql = "UPDATE cliente SET nome=?, email=?, senha=? WHERE id=?";
         try {
