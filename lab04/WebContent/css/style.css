@@ -1,0 +1,271 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #f5f0eb;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.root {
+    max-width: 620px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.75rem;
+}
+
+.logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #63082b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.logo i {
+    color: white;
+    font-size: 22px;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2b2427;
+}
+
+.sub {
+    font-size: 13px;
+    color: #7a6a63;
+    margin-top: 2px;
+}
+
+.populate-bar {
+    background: white;
+    border: 1px solid #e0d5cf;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.populate-label strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2b2427;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.populate-label span {
+    font-size: 13px;
+    color: #7a6a63;
+}
+
+#pop-status {
+    font-size: 13px;
+    margin-top: 5px;
+    min-height: 16px;
+}
+
+#btn-popular {
+    background: #63082b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    transition: opacity .2s;
+}
+
+#btn-popular:hover:not(:disabled) {
+    opacity: .85;
+}
+
+#btn-popular:disabled {
+    background: #e8e0dc;
+    color: #a09088;
+    cursor: default;
+}
+
+.sections {
+    display: grid;
+    gap: 10px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #e0d5cf;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+}
+
+.card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.card-head i {
+    font-size: 18px;
+    color: #63082b;
+}
+
+.card-head span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2b2427;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    padding: 6px 13px;
+    border-radius: 7px;
+    border: 1px solid #d0c8c3;
+    background: white;
+    color: #2b2427;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background .15s;
+}
+
+.btn:hover {
+    background: #f5f0eb;
+}
+
+.btn.primary {
+    background: #63082b;
+    color: white;
+    border-color: transparent;
+}
+
+.btn.primary:hover {
+    opacity: .88;
+    background: #63082b;
+}
+
+.btn.inserir {
+    background: white;
+    color: #63082b;
+    border-color: #63082b;
+}
+
+.btn.inserir:hover:not(:disabled) {
+    background: #f5f0eb;
+}
+
+.btn.inserir:disabled {
+    opacity: .4;
+    cursor: default;
+    pointer-events: none;
+}
+
+.insert-status {
+    font-size: 12px;
+    margin-left: 4px;
+    font-weight: 600;
+}
+
+.page {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2b2427;
+}
+
+.page-sub {
+    font-size: 13px;
+    color: #7a6a63;
+    margin-top: 2px;
+}
+
+h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2b2427;
+    margin-bottom: .75rem;
+}
+
+p {
+    font-size: 14px;
+    color: #7a6a63;
+    margin-top: 4px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+}
+
+th,
+td {
+    border: 1px solid #e0d5cf;
+    padding: 7px 12px;
+    text-align: left;
+}
+
+th {
+    background: #63082b;
+    color: white;
+    font-weight: 600;
+}
+
+tr:nth-child(even) {
+    background: #faf6f3;
+}
+
+.back {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    padding: 6px 13px;
+    border-radius: 7px;
+    border: 1px solid #d0c8c3;
+    background: white;
+    color: #2b2427;
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+.back:hover {
+    background: #f5f0eb;
+}
