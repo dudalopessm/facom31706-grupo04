@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cave Fontana - Pedidos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    function validaSafra(input) {
+      var ano = parseInt(input.value);
+      if (ano < 1900) {
+        input.setCustomValidity("A safra deve ser de 1900 em diante.");
+      } else {
+        input.setCustomValidity("");
+      }
+    }
+  </script>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo"><i class="ti ti-shopping-cart"></i></div>
+    <div>
+      <div class="page-title">Cave Fontana</div>
+      <div class="page-sub">Pedidos e itens</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i class="ti ti-list"></i> Listar pedidos e itens</h2>
+    <a class="btn primary" href="PedidoServlet" target="ped-result"><i class="ti ti-refresh"></i> Carregar lista</a>
+    <div style="margin-top:8px;"><iframe name="ped-result" style="width:100%;border:none;min-height:60px;"></iframe></div>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-plus"></i> Cadastrar pedido</legend>
+      <form class="form-grid" action="PedidoServlet" method="post" target="ped-result">
+        <input type="hidden" name="acao" value="inserir">
+        <div class="form-row">
+          <label for="p-cliente-cpf">CPF do cliente</label>
+          <input type="text" id="p-cliente-cpf" name="clienteCpf" maxlength="11" pattern="\d{11}" title="Digite apenas os 11 d\u00edgitos do CPF" required>
+        </div>
+        <div class="form-row">
+          <label for="p-status">Status</label>
+          <select id="p-status" name="status" required>
+            <option value="">Selecione...</option>
+            <option value="PENDENTE">PENDENTE</option>
+            <option value="PAGO">PAGO</option>
+            <option value="ENVIADO">ENVIADO</option>
+            <option value="ENTREGUE">ENTREGUE</option>
+            <option value="CANCELADO">CANCELADO</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="p-item-vinho-nome">Nome do vinho</label>
+          <input type="text" id="p-item-vinho-nome" name="vinhoNome" required>
+        </div>
+        <div class="form-row">
+          <label for="p-item-safra">Safra do vinho</label>
+          <input type="number" id="p-item-safra" name="safra" min="1900" oninput="validaSafra(this)" required>
+        </div>
+        <div class="form-row">
+          <label for="p-item-qtd">Quantidade</label>
+          <input type="number" id="p-item-qtd" name="quantidade" required min="1">
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-device-floppy"></i> Cadastrar</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-pencil"></i> Alterar pedido</legend>
+      <form class="form-grid" action="PedidoServlet" method="post" target="ped-result">
+        <input type="hidden" name="acao" value="alterar">
+        <div class="form-row">
+          <label for="p-alt-id">ID do pedido</label>
+          <input type="number" id="p-alt-id" name="id" required min="1">
+        </div>
+        <div class="form-row">
+          <label for="p-alt-cliente-cpf">Novo CPF do cliente</label>
+          <input type="text" id="p-alt-cliente-cpf" name="clienteCpf" maxlength="11" pattern="\d{11}" title="Digite apenas os 11 d\u00edgitos do CPF" required>
+        </div>
+        <div class="form-row">
+          <label for="p-alt-status">Novo status</label>
+          <select id="p-alt-status" name="status" required>
+            <option value="">Selecione...</option>
+            <option value="PENDENTE">PENDENTE</option>
+            <option value="PAGO">PAGO</option>
+            <option value="ENVIADO">ENVIADO</option>
+            <option value="ENTREGUE">ENTREGUE</option>
+            <option value="CANCELADO">CANCELADO</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-device-floppy"></i> Alterar</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-search"></i> Consultar pedidos por CPF do cliente</legend>
+      <form class="form-grid" action="PedidoServlet" method="get" target="ped-result">
+        <input type="hidden" name="acao" value="buscarPorCpf">
+        <div class="form-row">
+          <label for="p-buscar-cpf">CPF do cliente</label>
+          <input type="text" id="p-buscar-cpf" name="clienteCpf" maxlength="11" pattern="\d{11}" title="Digite apenas os 11 d\u00edgitos do CPF" required>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-search"></i> Consultar</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-trash"></i> Remover pedido por CPF + data</legend>
+      <form class="form-grid" action="PedidoServlet" method="post" target="ped-result">
+        <input type="hidden" name="acao" value="removerPorCpfData">
+        <div class="form-row">
+          <label for="p-rem-cpf">CPF do cliente</label>
+          <input type="text" id="p-rem-cpf" name="clienteCpf" maxlength="11" pattern="\d{11}" title="Digite apenas os 11 d\u00edgitos do CPF" required>
+        </div>
+        <div class="form-row">
+          <label for="p-rem-data">Data/Hora (YYYY-MM-DD HH:MM:SS)</label>
+          <input type="text" id="p-rem-data" name="data" placeholder="Ex: 2026-06-21 23:47:15" pattern="\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}" title="Formato: YYYY-MM-DD HH:MM:SS" required>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-trash"></i> Remover</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-plus"></i> Cadastrar item em pedido existente</legend>
+      <form class="form-grid" action="PedidoServlet" method="post" target="ped-result">
+        <input type="hidden" name="acao" value="inserirItem">
+        <div class="form-row">
+          <label for="pi-id-pedido">ID do Pedido</label>
+          <input type="number" id="pi-id-pedido" name="idPedido" required min="1">
+        </div>
+        <div class="form-row">
+          <label for="pi-vinho-nome">Nome do vinho</label>
+          <input type="text" id="pi-vinho-nome" name="vinhoNome" required>
+        </div>
+        <div class="form-row">
+          <label for="pi-safra">Safra do vinho</label>
+          <input type="number" id="pi-safra" name="safra" min="1900" oninput="validaSafra(this)" required>
+        </div>
+        <div class="form-row">
+          <label for="pi-qtd">Quantidade</label>
+          <input type="number" id="pi-qtd" name="quantidade" required min="1">
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-device-floppy"></i> Cadastrar item</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-trash"></i> Remover item de pedido</legend>
+      <form class="form-grid" action="PedidoServlet" method="post" target="ped-result">
+        <input type="hidden" name="acao" value="removerItem">
+        <div class="form-row">
+          <label for="pi-rem-pedido">ID do Pedido</label>
+          <input type="number" id="pi-rem-pedido" name="idPedido" required min="1">
+        </div>
+        <div class="form-row">
+          <label for="pi-rem-vinho">Nome do vinho</label>
+          <input type="text" id="pi-rem-vinho" name="vinhoNome" required>
+        </div>
+        <div class="form-row">
+          <label for="pi-rem-safra">Safra do vinho</label>
+          <input type="number" id="pi-rem-safra" name="safra" min="1900" oninput="validaSafra(this)" required>
+        </div>
+        <div class="form-row">
+          <label for="pi-rem-qtd">Quantidade</label>
+          <input type="number" id="pi-rem-qtd" name="quantidade" required min="1">
+        </div>
+        <div class="form-row">
+          <label for="pi-rem-data">Data/Hora do item (ex: 2026-06-21 22:30:00)</label>
+          <input type="text" id="pi-rem-data" name="dataItem" placeholder="Ex: 2026-06-21 22:30:00" required>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-trash"></i> Remover item</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <a class="back" href="index.html">&larr; Voltar</a>
+</div>
+</body>
+</html>

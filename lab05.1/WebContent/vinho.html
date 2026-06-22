@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cave Fontana - Vinhos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    function validaSafra(input) {
+      var ano = parseInt(input.value);
+      if (ano < 1900) {
+        input.setCustomValidity("A safra deve ser de 1900 em diante.");
+      } else {
+        input.setCustomValidity("");
+      }
+    }
+  </script>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="logo"><i class="ti ti-bottle"></i></div>
+    <div>
+      <div class="page-title">Cave Fontana</div>
+      <div class="page-sub">Vinhos</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i class="ti ti-list"></i> Listar vinhos</h2>
+    <a class="btn primary" href="VinhoServlet" target="vinho-result"><i class="ti ti-refresh"></i> Carregar lista</a>
+    <div style="margin-top:8px;"><iframe name="vinho-result" style="width:100%;border:none;min-height:60px;"></iframe></div>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-plus"></i> Cadastrar vinho</legend>
+      <form class="form-grid" action="VinhoServlet" method="post" target="vinho-result">
+        <input type="hidden" name="acao" value="inserir">
+        <div class="form-row">
+          <label for="v-nome">Nome</label>
+          <input type="text" id="v-nome" name="nome" required>
+        </div>
+        <div class="form-row">
+          <label for="v-safra">Safra</label>
+          <input type="number" id="v-safra" name="safra" min="1900" oninput="validaSafra(this)" required>
+        </div>
+        <div class="form-row">
+          <label for="v-preco">Pre&ccedil;o (R$)</label>
+          <input type="number" id="v-preco" name="preco" step="0.01" required>
+        </div>
+        <div class="form-row">
+          <label for="v-id-categoria">ID Categoria</label>
+          <input type="number" id="v-id-categoria" name="idCategoria" required min="1">
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-device-floppy"></i> Cadastrar</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-pencil"></i> Alterar vinho</legend>
+      <form class="form-grid" action="VinhoServlet" method="post" target="vinho-result">
+        <input type="hidden" name="acao" value="alterar">
+        <div class="form-row">
+          <label for="v-alt-id">ID</label>
+          <input type="number" id="v-alt-id" name="id" required min="1">
+        </div>
+        <div class="form-row">
+          <label for="v-alt-nome">Novo nome</label>
+          <input type="text" id="v-alt-nome" name="nome" required>
+        </div>
+        <div class="form-row">
+          <label for="v-alt-safra">Nova safra</label>
+          <input type="number" id="v-alt-safra" name="safra" min="1900" oninput="validaSafra(this)">
+        </div>
+        <div class="form-row">
+          <label for="v-alt-preco">Novo pre&ccedil;o (R$)</label>
+          <input type="number" id="v-alt-preco" name="preco" step="0.01" required>
+        </div>
+        <div class="form-row">
+          <label for="v-alt-id-categoria">Novo ID Categoria</label>
+          <input type="number" id="v-alt-id-categoria" name="idCategoria" required min="1">
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-device-floppy"></i> Alterar</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-search"></i> Consultar vinho por nome + safra</legend>
+      <form class="form-grid" action="VinhoServlet" method="get" target="vinho-result">
+        <input type="hidden" name="acao" value="buscar">
+        <div class="form-row">
+          <label for="v-buscar-nome">Nome</label>
+          <input type="text" id="v-buscar-nome" name="nome" required>
+        </div>
+        <div class="form-row">
+          <label for="v-buscar-safra">Safra</label>
+          <input type="number" id="v-buscar-safra" name="safra" min="1900" oninput="validaSafra(this)" required>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-search"></i> Consultar</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-trash"></i> Remover vinho por nome + safra</legend>
+      <form class="form-grid" action="VinhoServlet" method="post" target="vinho-result">
+        <input type="hidden" name="acao" value="remover">
+        <div class="form-row">
+          <label for="v-rem-nome">Nome</label>
+          <input type="text" id="v-rem-nome" name="nome" required>
+        </div>
+        <div class="form-row">
+          <label for="v-rem-safra">Safra</label>
+          <input type="number" id="v-rem-safra" name="safra" min="1900" oninput="validaSafra(this)" required>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-trash"></i> Remover</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <a class="back" href="index.html">&larr; Voltar</a>
+</div>
+</body>
+</html>
