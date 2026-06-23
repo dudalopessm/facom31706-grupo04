@@ -50,28 +50,13 @@ public class PedidoServlet extends HttpServlet {
             if ("inserir".equals(acao)) {
                 String clienteCpf = request.getParameter("clienteCpf");
                 String status = request.getParameter("status");
-                String vinhoNome = request.getParameter("vinhoNome");
-                int safra = parseInt(request.getParameter("safra"));
-                int quantidade = Integer.parseInt(request.getParameter("quantidade"));
 
-                Vinho vinho = vinhoDao.buscaPorNomeSafra(vinhoNome, safra);
-                if (vinho == null) {
-                    out.println("<p class='result-msg error'>Vinho \"" + vinhoNome + "\" safra " + safra + " n\u00e3o encontrado. Verifique o nome e a safra.</p>");
-                } else {
-                    Pedido p = new Pedido();
-                    p.setClienteCpf(clienteCpf);
-                    p.setStatus(status);
-                    dao.adiciona(p);
+                Pedido p = new Pedido();
+                p.setClienteCpf(clienteCpf);
+                p.setStatus(status);
+                dao.adiciona(p);
 
-                    ItemPedido item = new ItemPedido();
-                    item.setIdPedido(p.getId());
-                    item.setIdVinho(vinho.getId());
-                    item.setQuantidade(quantidade);
-                    item.setPrecoUnitario(vinho.getPreco());
-                    itemDao.adiciona(item);
-
-                    out.println("<p class='result-msg success'>Pedido #" + p.getId() + " inserido com sucesso com 1 item (\"" + vinhoNome + "\" qtd: " + quantidade + ")!</p>");
-                }
+                out.println("<p class='result-msg success'>Pedido #" + p.getId() + " inserido com sucesso!</p>");
 
             } else if ("alterar".equals(acao)) {
                 int id = Integer.parseInt(request.getParameter("id"));
@@ -155,6 +140,40 @@ public class PedidoServlet extends HttpServlet {
                     }
                 }
 
+            } else if ("alterarItem".equals(acao)) {
+                int idPedido = Integer.parseInt(request.getParameter("idPedido"));
+                String vinhoNome = request.getParameter("vinhoNome");
+                int safra = parseInt(request.getParameter("safra"));
+                String dataItem = request.getParameter("dataItem");
+                int novaQuantidade = Integer.parseInt(request.getParameter("novaQuantidade"));
+
+                Vinho vinho = vinhoDao.buscaPorNomeSafra(vinhoNome, safra);
+                if (vinho == null) {
+                    out.println("<p class='result-msg error'>Vinho \"" + vinhoNome + "\" safra " + safra + " n\u00e3o encontrado.</p>");
+                } else {
+                    ItemPedido item = itemDao.buscaPorPedidoVinhoData(idPedido, vinho.getId(), dataItem);
+                    if (item == null) {
+                        out.println("<p class='result-msg error'>Item n\u00e3o encontrado no pedido #" + idPedido + " com essa data.</p>");
+                    } else if (item.getQuantidade() == novaQuantidade) {
+                        out.println("<p class='result-msg info'>Nenhuma altera\u00e7\u00e3o foi feita. Os dados s\u00e3o id\u00eanticos.</p>");
+                    } else {
+                        itemDao.atualizaQuantidade(item.getId(), novaQuantidade);
+                        out.println("<p class='result-msg success'>Quantidade do item \"" + vinhoNome + "\" atualizada para " + novaQuantidade + " no pedido #" + idPedido + ".</p>");
+                    }
+                }
+
+            } else if ("listarItens".equals(acao)) {
+                List<ItemPedido> itens = itemDao.getLista();
+                out.println("<h3>Todos os itens dos pedidos</h3>");
+                out.println("<table><tr><th>ID</th><th>ID Pedido</th><th>Vinho</th><th>Quantidade</th><th>Pre\u00e7o Unit.</th><th>Data/Hora</th></tr>");
+                for (ItemPedido item : itens) {
+                    out.println("<tr><td>" + item.getId() + "</td><td>" + item.getIdPedido()
+                        + "</td><td>" + item.getVinhoNome() + "</td><td>" + item.getQuantidade()
+                        + "</td><td>R$ " + String.format("%.2f", item.getPrecoUnitario())
+                        + "</td><td>" + item.getDataItem() + "</td></tr>");
+                }
+                out.println("</table>");
+
             } else if ("buscar".equals(acao)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Pedido p = dao.buscaPorId(id);
@@ -203,17 +222,6 @@ public class PedidoServlet extends HttpServlet {
                 for (Pedido p : pedidos) {
                     out.println("<tr><td>" + p.getId() + "</td><td>" + p.getClienteCpf()
                         + "</td><td>" + p.getDataPedido() + "</td><td>" + p.getStatus() + "</td></tr>");
-                }
-                out.println("</table>");
-
-                List<ItemPedido> itens = itemDao.getLista();
-                out.println("<h3>Itens dos pedidos</h3>");
-                out.println("<table><tr><th>ID</th><th>ID Pedido</th><th>Vinho</th><th>Quantidade</th><th>Pre\u00e7o Unit.</th><th>Data/Hora</th></tr>");
-                for (ItemPedido item : itens) {
-                    out.println("<tr><td>" + item.getId() + "</td><td>" + item.getIdPedido()
-                        + "</td><td>" + item.getVinhoNome() + "</td><td>" + item.getQuantidade()
-                        + "</td><td>R$ " + String.format("%.2f", item.getPrecoUnitario())
-                        + "</td><td>" + item.getDataItem() + "</td></tr>");
                 }
                 out.println("</table>");
             }
