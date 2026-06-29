@@ -7,11 +7,31 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 
+import lab05.dao.CategoriaVinhoDao;
 import lab05.dao.VinhoDao;
 import lab05.modelo.Vinho;
 
 @WebServlet("/VinhoServlet")
 public class VinhoServlet extends HttpServlet {
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        getServletContext().log("VinhoServlet inicializado");
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        super.service(request, response);
+    }
+
+    @Override
+    public void destroy() {
+        getServletContext().log("VinhoServlet finalizado");
+        super.destroy();
+    }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -26,7 +46,6 @@ public class VinhoServlet extends HttpServlet {
     private void process(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         String acao = request.getParameter("acao");
@@ -39,9 +58,15 @@ public class VinhoServlet extends HttpServlet {
 
         Connection connection = new ConnectionFactory().getConnection();
         VinhoDao dao = new VinhoDao(connection);
+        CategoriaVinhoDao categoriaDao = new CategoriaVinhoDao(connection);
 
         try {
             if ("inserir".equals(acao)) {
+                if (categoriaDao.estaVazia()) {
+                    imprimeErroDependencia(out,
+                        "Para se ter um vinho precisamos de uma categoria primeiro. Crie uma categoria de vinhos",
+                        "categoria_vinho.html", "Ir para Categorias de vinho");
+                } else {
                 String nome = request.getParameter("nome");
                 int safra = parseInt(request.getParameter("safra"));
                 double preco = Double.parseDouble(request.getParameter("preco"));
@@ -53,6 +78,7 @@ public class VinhoServlet extends HttpServlet {
                 v.setIdCategoria(idCategoria);
                 dao.adiciona(v);
                 out.println("<p class='result-msg success'>Vinho \"" + nome + "\" inserido com sucesso!</p>");
+                }
 
             } else if ("alterar".equals(acao)) {
                 int id = Integer.parseInt(request.getParameter("id"));
@@ -125,5 +151,10 @@ public class VinhoServlet extends HttpServlet {
     private int parseInt(String s) {
         if (s == null || s.trim().isEmpty()) return 0;
         return Integer.parseInt(s.trim());
+    }
+
+    private void imprimeErroDependencia(PrintWriter out, String mensagem, String pagina, String textoBotao) {
+        out.println("<p class='result-msg error'>" + mensagem + "</p>");
+        out.println("<a class='btn primary' href='" + pagina + "' target='_top'>" + textoBotao + "</a>");
     }
 }

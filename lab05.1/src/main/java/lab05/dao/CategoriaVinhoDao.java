@@ -104,6 +104,21 @@ public class CategoriaVinhoDao {
         }
     }
 
+    public boolean estaVazia() {
+        String sql = "SELECT COUNT(*) FROM categoria_vinho";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            boolean vazia = rs.getInt(1) == 0;
+            rs.close();
+            stmt.close();
+            return vazia;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean removePorNome(String nome) {
         String sql = "DELETE FROM categoria_vinho WHERE nome=?";
         try {

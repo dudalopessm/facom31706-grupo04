@@ -7,6 +7,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 
+import lab05.dao.ClienteDao;
 import lab05.dao.ItemPedidoDao;
 import lab05.dao.PedidoDao;
 import lab05.dao.VinhoDao;
@@ -16,6 +17,25 @@ import lab05.modelo.Vinho;
 
 @WebServlet("/PedidoServlet")
 public class PedidoServlet extends HttpServlet {
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        getServletContext().log("PedidoServlet inicializado");
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        super.service(request, response);
+    }
+
+    @Override
+    public void destroy() {
+        getServletContext().log("PedidoServlet finalizado");
+        super.destroy();
+    }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -30,7 +50,6 @@ public class PedidoServlet extends HttpServlet {
     private void process(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         String acao = request.getParameter("acao");
@@ -45,9 +64,15 @@ public class PedidoServlet extends HttpServlet {
         PedidoDao dao = new PedidoDao(connection);
         ItemPedidoDao itemDao = new ItemPedidoDao(connection);
         VinhoDao vinhoDao = new VinhoDao(connection);
+        ClienteDao clienteDao = new ClienteDao(connection);
 
         try {
             if ("inserir".equals(acao)) {
+                if (clienteDao.estaVazia()) {
+                    imprimeErroDependencia(out,
+                        "Para se ter um pedido precisamos de um cliente primeiro. Crie um cliente",
+                        "cliente.html", "Ir para Clientes");
+                } else {
                 String clienteCpf = request.getParameter("clienteCpf");
                 String status = request.getParameter("status");
 
@@ -57,6 +82,7 @@ public class PedidoServlet extends HttpServlet {
                 dao.adiciona(p);
 
                 out.println("<p class='result-msg success'>Pedido #" + p.getId() + " inserido com sucesso!</p>");
+                }
 
             } else if ("alterar".equals(acao)) {
                 int id = Integer.parseInt(request.getParameter("id"));
@@ -96,6 +122,15 @@ public class PedidoServlet extends HttpServlet {
                 }
 
             } else if ("inserirItem".equals(acao)) {
+                if (dao.estaVazia()) {
+                    imprimeErroDependencia(out,
+                        "Para inserir um item precisamos de um pedido primeiro. Crie um pedido",
+                        "pedido.html", "Ir para Pedidos");
+                } else if (vinhoDao.estaVazia()) {
+                    imprimeErroDependencia(out,
+                        "Para inserir um item precisamos de um vinho primeiro. Crie um vinho",
+                        "vinho.html", "Ir para Vinhos");
+                } else {
                 int idPedido = Integer.parseInt(request.getParameter("idPedido"));
                 String vinhoNome = request.getParameter("vinhoNome");
                 int safra = parseInt(request.getParameter("safra"));
@@ -105,13 +140,21 @@ public class PedidoServlet extends HttpServlet {
                 if (vinho == null) {
                     out.println("<p class='result-msg error'>Vinho \"" + vinhoNome + "\" safra " + safra + " n\u00e3o encontrado. Verifique o nome e a safra.</p>");
                 } else {
-                    ItemPedido item = new ItemPedido();
-                    item.setIdPedido(idPedido);
-                    item.setIdVinho(vinho.getId());
-                    item.setQuantidade(quantidade);
-                    item.setPrecoUnitario(vinho.getPreco());
-                    itemDao.adiciona(item);
-                    out.println("<p class='result-msg success'>Item (\"" + vinhoNome + "\" qtd: " + quantidade + ") adicionado ao pedido #" + idPedido + " com sucesso!</p>");
+                    ItemPedido existente = itemDao.buscaPorPedidoVinho(idPedido, vinho.getId());
+                    if (existente != null) {
+                        int novaQtd = existente.getQuantidade() + quantidade;
+                        itemDao.atualizaQuantidade(existente.getId(), novaQtd);
+                        out.println("<p class='result-msg success'>Quantidade do item (\"" + vinhoNome + "\") atualizada para " + novaQtd + " no pedido #" + idPedido + ".</p>");
+                    } else {
+                        ItemPedido item = new ItemPedido();
+                        item.setIdPedido(idPedido);
+                        item.setIdVinho(vinho.getId());
+                        item.setQuantidade(quantidade);
+                        item.setPrecoUnitario(vinho.getPreco());
+                        itemDao.adiciona(item);
+                        out.println("<p class='result-msg success'>Item (\"" + vinhoNome + "\" qtd: " + quantidade + ") adicionado ao pedido #" + idPedido + " com sucesso!</p>");
+                    }
+                }
                 }
 
             } else if ("removerItem".equals(acao)) {
@@ -237,5 +280,10 @@ public class PedidoServlet extends HttpServlet {
     private int parseInt(String s) {
         if (s == null || s.trim().isEmpty()) return 0;
         return Integer.parseInt(s.trim());
+    }
+
+    private void imprimeErroDependencia(PrintWriter out, String mensagem, String pagina, String textoBotao) {
+        out.println("<p class='result-msg error'>" + mensagem + "</p>");
+        out.println("<a class='btn primary' href='" + pagina + "' target='_top'>" + textoBotao + "</a>");
     }
 }

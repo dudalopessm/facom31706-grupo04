@@ -66,6 +66,22 @@ public class ItemPedidoDao {
         return itens;
     }
 
+    public ItemPedido buscaPorPedidoVinho(int idPedido, int idVinho) {
+        String sql = "SELECT ip.*, v.nome as vinho_nome FROM item_pedido ip JOIN vinho v ON v.id = ip.id_vinho WHERE id_pedido=? AND id_vinho=? LIMIT 1";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, idPedido);
+            stmt.setInt(2, idVinho);
+            ResultSet rs = stmt.executeQuery();
+            ItemPedido item = rs.next() ? mapItem(rs) : null;
+            rs.close();
+            stmt.close();
+            return item;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ItemPedido buscaPorPedidoVinhoData(int idPedido, int idVinho, String dataItem) {
         String sql = "SELECT ip.*, v.nome as vinho_nome FROM item_pedido ip JOIN vinho v ON v.id = ip.id_vinho WHERE id_pedido=? AND id_vinho=? AND data_item=? LIMIT 1";
         try {

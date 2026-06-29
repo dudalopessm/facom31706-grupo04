@@ -13,6 +13,25 @@ import lab05.modelo.CategoriaVinho;
 @WebServlet("/CategoriaVinhoServlet")
 public class CategoriaVinhoServlet extends HttpServlet {
 
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        getServletContext().log("CategoriaVinhoServlet inicializado");
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        super.service(request, response);
+    }
+
+    @Override
+    public void destroy() {
+        getServletContext().log("CategoriaVinhoServlet finalizado");
+        super.destroy();
+    }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         process(request, response);
@@ -26,7 +45,6 @@ public class CategoriaVinhoServlet extends HttpServlet {
     private void process(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         String acao = request.getParameter("acao");

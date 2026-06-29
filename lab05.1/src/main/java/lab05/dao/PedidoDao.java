@@ -100,6 +100,21 @@ public class PedidoDao {
         }
     }
 
+    public boolean estaVazia() {
+        String sql = "SELECT COUNT(*) FROM pedido";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            boolean vazia = rs.getInt(1) == 0;
+            rs.close();
+            stmt.close();
+            return vazia;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean possuiItens(int idPedido) {
         String sql = "SELECT COUNT(*) FROM item_pedido WHERE id_pedido = ?";
         try {

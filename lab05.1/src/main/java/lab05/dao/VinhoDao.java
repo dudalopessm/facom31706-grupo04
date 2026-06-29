@@ -118,6 +118,21 @@ public class VinhoDao {
         }
     }
 
+    public boolean estaVazia() {
+        String sql = "SELECT COUNT(*) FROM vinho";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            boolean vazia = rs.getInt(1) == 0;
+            rs.close();
+            stmt.close();
+            return vazia;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean possuiItensPedido(int idVinho) {
         String sql = "SELECT COUNT(*) FROM item_pedido WHERE id_vinho = ?";
         try {
