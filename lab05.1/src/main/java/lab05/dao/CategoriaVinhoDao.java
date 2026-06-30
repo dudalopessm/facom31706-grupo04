@@ -50,6 +50,27 @@ public class CategoriaVinhoDao {
         return categorias;
     }
 
+    public CategoriaVinho buscaPorId(int id) {
+        String sql = "SELECT * FROM categoria_vinho WHERE id=?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            CategoriaVinho categoria = null;
+            if (rs.next()) {
+                categoria = new CategoriaVinho();
+                categoria.setId(rs.getInt("id"));
+                categoria.setNome(rs.getString("nome"));
+                categoria.setDescricao(rs.getString("descricao"));
+            }
+            rs.close();
+            stmt.close();
+            return categoria;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public CategoriaVinho buscaPorNome(String nome) {
         String sql = "SELECT * FROM categoria_vinho WHERE nome=?";
         try {

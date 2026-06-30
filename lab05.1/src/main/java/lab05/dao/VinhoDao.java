@@ -32,19 +32,13 @@ public class VinhoDao {
     }
 
     public List<Vinho> getLista() {
-        String sql = "SELECT * FROM vinho";
+        String sql = "SELECT v.*, c.nome as categoria_nome FROM vinho v JOIN categoria_vinho c ON c.id = v.id_categoria";
         List<Vinho> vinhos = new ArrayList<>();
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                Vinho vinho = new Vinho();
-                vinho.setId(rs.getInt("id"));
-                vinho.setNome(rs.getString("nome"));
-                vinho.setSafra(rs.getInt("safra"));
-                vinho.setPreco(rs.getDouble("preco"));
-                vinho.setIdCategoria(rs.getInt("id_categoria"));
-                vinhos.add(vinho);
+                vinhos.add(mapVinho(rs));
             }
             rs.close();
             stmt.close();
@@ -55,21 +49,13 @@ public class VinhoDao {
     }
 
     public Vinho buscaPorNomeSafra(String nome, int safra) {
-        String sql = "SELECT * FROM vinho WHERE nome=? AND safra=?";
+        String sql = "SELECT v.*, c.nome as categoria_nome FROM vinho v JOIN categoria_vinho c ON c.id = v.id_categoria WHERE v.nome=? AND v.safra=?";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, nome);
             stmt.setInt(2, safra);
             ResultSet rs = stmt.executeQuery();
-            Vinho vinho = null;
-            if (rs.next()) {
-                vinho = new Vinho();
-                vinho.setId(rs.getInt("id"));
-                vinho.setNome(rs.getString("nome"));
-                vinho.setSafra(rs.getInt("safra"));
-                vinho.setPreco(rs.getDouble("preco"));
-                vinho.setIdCategoria(rs.getInt("id_categoria"));
-            }
+            Vinho vinho = rs.next() ? mapVinho(rs) : null;
             rs.close();
             stmt.close();
             return vinho;
@@ -79,26 +65,29 @@ public class VinhoDao {
     }
 
     public Vinho buscaPorId(int id) {
-        String sql = "SELECT * FROM vinho WHERE id=?";
+        String sql = "SELECT v.*, c.nome as categoria_nome FROM vinho v JOIN categoria_vinho c ON c.id = v.id_categoria WHERE v.id=?";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-            Vinho vinho = null;
-            if (rs.next()) {
-                vinho = new Vinho();
-                vinho.setId(rs.getInt("id"));
-                vinho.setNome(rs.getString("nome"));
-                vinho.setSafra(rs.getInt("safra"));
-                vinho.setPreco(rs.getDouble("preco"));
-                vinho.setIdCategoria(rs.getInt("id_categoria"));
-            }
+            Vinho vinho = rs.next() ? mapVinho(rs) : null;
             rs.close();
             stmt.close();
             return vinho;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Vinho mapVinho(ResultSet rs) throws SQLException {
+        Vinho vinho = new Vinho();
+        vinho.setId(rs.getInt("id"));
+        vinho.setNome(rs.getString("nome"));
+        vinho.setSafra(rs.getInt("safra"));
+        vinho.setPreco(rs.getDouble("preco"));
+        vinho.setIdCategoria(rs.getInt("id_categoria"));
+        try { vinho.setCategoriaNome(rs.getString("categoria_nome")); } catch (SQLException e) { }
+        return vinho;
     }
 
     public boolean altera(Vinho vinho) {

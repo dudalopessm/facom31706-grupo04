@@ -68,26 +68,32 @@ public class PedidoServlet extends HttpServlet {
 
         try {
             if ("inserir".equals(acao)) {
-                if (clienteDao.estaVazia()) {
-                    imprimeErroDependencia(out,
-                        "Para se ter um pedido precisamos de um cliente primeiro. Crie um cliente",
-                        "cliente.html", "Ir para Clientes");
-                } else {
                 String clienteCpf = request.getParameter("clienteCpf");
                 String status = request.getParameter("status");
 
-                Pedido p = new Pedido();
-                p.setClienteCpf(clienteCpf);
-                p.setStatus(status);
-                dao.adiciona(p);
+                if (clienteDao.buscaPorCpf(clienteCpf) == null) {
+                    imprimeErroDependencia(out,
+                        "Cliente CPF " + clienteCpf + " n\u00e3o encontrado. Cadastre o cliente primeiro",
+                        "cliente.html", "Ir para Clientes");
+                } else {
+                    Pedido p = new Pedido();
+                    p.setClienteCpf(clienteCpf);
+                    p.setStatus(status);
+                    dao.adiciona(p);
 
-                out.println("<p class='result-msg success'>Pedido #" + p.getId() + " inserido com sucesso!</p>");
+                    out.println("<p class='result-msg success'>Pedido #" + p.getId() + " inserido com sucesso!</p>");
                 }
 
             } else if ("alterar".equals(acao)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 String clienteCpf = request.getParameter("clienteCpf");
                 String status = request.getParameter("status");
+
+                if (clienteDao.buscaPorCpf(clienteCpf) == null) {
+                    imprimeErroDependencia(out,
+                        "Cliente CPF " + clienteCpf + " n\u00e3o encontrado. Cadastre o cliente primeiro",
+                        "cliente.html", "Ir para Clientes");
+                } else {
                 Pedido atual = dao.buscaPorId(id);
                 if (atual == null) {
                     out.println("<p class='result-msg error'>Pedido id=" + id + " n\u00e3o encontrado.</p>");
@@ -100,6 +106,7 @@ public class PedidoServlet extends HttpServlet {
                     p.setStatus(status);
                     dao.altera(p);
                     out.println("<p class='result-msg success'>Pedido id=" + id + " alterado com sucesso!</p>");
+                }
                 }
 
             } else if ("remover".equals(acao)) {
@@ -122,23 +129,21 @@ public class PedidoServlet extends HttpServlet {
                 }
 
             } else if ("inserirItem".equals(acao)) {
-                if (dao.estaVazia()) {
-                    imprimeErroDependencia(out,
-                        "Para inserir um item precisamos de um pedido primeiro. Crie um pedido",
-                        "pedido.html", "Ir para Pedidos");
-                } else if (vinhoDao.estaVazia()) {
-                    imprimeErroDependencia(out,
-                        "Para inserir um item precisamos de um vinho primeiro. Crie um vinho",
-                        "vinho.html", "Ir para Vinhos");
-                } else {
                 int idPedido = Integer.parseInt(request.getParameter("idPedido"));
                 String vinhoNome = request.getParameter("vinhoNome");
                 int safra = parseInt(request.getParameter("safra"));
                 int quantidade = Integer.parseInt(request.getParameter("quantidade"));
 
+                if (dao.buscaPorId(idPedido) == null) {
+                    imprimeErroDependencia(out,
+                        "Pedido id=" + idPedido + " n\u00e3o encontrado. Crie o pedido primeiro",
+                        "pedido.html", "Ir para Pedidos");
+                } else {
                 Vinho vinho = vinhoDao.buscaPorNomeSafra(vinhoNome, safra);
                 if (vinho == null) {
-                    out.println("<p class='result-msg error'>Vinho \"" + vinhoNome + "\" safra " + safra + " n\u00e3o encontrado. Verifique o nome e a safra.</p>");
+                    imprimeErroDependencia(out,
+                        "Vinho \"" + vinhoNome + "\" safra " + safra + " n\u00e3o encontrado. Crie o vinho primeiro",
+                        "vinho.html", "Ir para Vinhos");
                 } else {
                     ItemPedido existente = itemDao.buscaPorPedidoVinho(idPedido, vinho.getId());
                     if (existente != null) {
@@ -270,6 +275,8 @@ public class PedidoServlet extends HttpServlet {
             }
 
             connection.close();
+        } catch (NumberFormatException e) {
+            out.println("<p class='result-msg error'>Valor inv\u00e1lido para um campo num\u00e9rico. Verifique os dados informados.</p>");
         } catch (Exception e) {
             out.println("<p class='result-msg error'>Erro: " + e.getMessage() + "</p>");
         }

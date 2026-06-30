@@ -62,11 +62,15 @@ public class CategoriaVinhoServlet extends HttpServlet {
             if ("inserir".equals(acao)) {
                 String nome = request.getParameter("nome");
                 String descricao = request.getParameter("descricao");
-                CategoriaVinho c = new CategoriaVinho();
-                c.setNome(nome);
-                c.setDescricao(descricao);
-                dao.adiciona(c);
-                out.println("<p class='result-msg success'>Categoria \"" + nome + "\" inserida com sucesso!</p>");
+                if (dao.buscaPorNome(nome) != null) {
+                    out.println("<p class='result-msg error'>J\u00e1 existe uma categoria com o nome \"" + nome + "\".</p>");
+                } else {
+                    CategoriaVinho c = new CategoriaVinho();
+                    c.setNome(nome);
+                    c.setDescricao(descricao);
+                    dao.adiciona(c);
+                    out.println("<p class='result-msg success'>Categoria \"" + nome + "\" inserida com sucesso!</p>");
+                }
 
             } else if ("alterar".equals(acao)) {
                 String nomeOriginal = request.getParameter("nomeOriginal");
@@ -77,6 +81,8 @@ public class CategoriaVinhoServlet extends HttpServlet {
                     out.println("<p class='result-msg error'>Categoria \"" + nomeOriginal + "\" n\u00e3o encontrada.</p>");
                 } else if (cat.getNome().equals(novoNome) && (cat.getDescricao() == null ? descricao == null : cat.getDescricao().equals(descricao))) {
                     out.println("<p class='result-msg info'>Nenhuma altera\u00e7\u00e3o foi feita. Os dados s\u00e3o id\u00eanticos.</p>");
+                } else if (!nomeOriginal.equals(novoNome) && dao.buscaPorNome(novoNome) != null) {
+                    out.println("<p class='result-msg error'>J\u00e1 existe outra categoria com o nome \"" + novoNome + "\".</p>");
                 } else {
                     cat.setNome(novoNome);
                     cat.setDescricao(descricao);
@@ -115,6 +121,8 @@ public class CategoriaVinhoServlet extends HttpServlet {
             }
 
             connection.close();
+        } catch (NumberFormatException e) {
+            out.println("<p class='result-msg error'>Valor inv\u00e1lido para um campo num\u00e9rico. Verifique os dados informados.</p>");
         } catch (Exception e) {
             out.println("<p class='result-msg error'>Erro: " + e.getMessage() + "</p>");
         }

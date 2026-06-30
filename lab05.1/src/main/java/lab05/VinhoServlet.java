@@ -9,6 +9,7 @@ import javax.servlet.annotation.*;
 
 import lab05.dao.CategoriaVinhoDao;
 import lab05.dao.VinhoDao;
+import lab05.modelo.CategoriaVinho;
 import lab05.modelo.Vinho;
 
 @WebServlet("/VinhoServlet")
@@ -62,22 +63,26 @@ public class VinhoServlet extends HttpServlet {
 
         try {
             if ("inserir".equals(acao)) {
-                if (categoriaDao.estaVazia()) {
-                    imprimeErroDependencia(out,
-                        "Para se ter um vinho precisamos de uma categoria primeiro. Crie uma categoria de vinhos",
-                        "categoria_vinho.html", "Ir para Categorias de vinho");
-                } else {
                 String nome = request.getParameter("nome");
                 int safra = parseInt(request.getParameter("safra"));
                 double preco = Double.parseDouble(request.getParameter("preco"));
-                int idCategoria = Integer.parseInt(request.getParameter("idCategoria"));
-                Vinho v = new Vinho();
-                v.setNome(nome);
-                v.setSafra(safra);
-                v.setPreco(preco);
-                v.setIdCategoria(idCategoria);
-                dao.adiciona(v);
-                out.println("<p class='result-msg success'>Vinho \"" + nome + "\" inserido com sucesso!</p>");
+                String categoriaNome = request.getParameter("categoriaNome");
+
+                CategoriaVinho cat = categoriaDao.buscaPorNome(categoriaNome);
+                if (cat == null) {
+                    imprimeErroDependencia(out,
+                        "Categoria \"" + categoriaNome + "\" n\u00e3o encontrada. Crie a categoria primeiro",
+                        "categoria_vinho.html", "Ir para Categorias de vinho");
+                } else if (dao.buscaPorNomeSafra(nome, safra) != null) {
+                    out.println("<p class='result-msg error'>J\u00e1 existe um vinho \"" + nome + "\" safra " + safra + ".</p>");
+                } else {
+                    Vinho v = new Vinho();
+                    v.setNome(nome);
+                    v.setSafra(safra);
+                    v.setPreco(preco);
+                    v.setIdCategoria(cat.getId());
+                    dao.adiciona(v);
+                    out.println("<p class='result-msg success'>Vinho \"" + nome + "\" inserido com sucesso!</p>");
                 }
 
             } else if ("alterar".equals(acao)) {
@@ -85,22 +90,44 @@ public class VinhoServlet extends HttpServlet {
                 String nome = request.getParameter("nome");
                 int safra = parseInt(request.getParameter("safra"));
                 double preco = Double.parseDouble(request.getParameter("preco"));
-                int idCategoria = Integer.parseInt(request.getParameter("idCategoria"));
+                String categoriaNome = request.getParameter("categoriaNome");
+
+                CategoriaVinho cat = categoriaDao.buscaPorNome(categoriaNome);
+                if (cat == null) {
+                    imprimeErroDependencia(out,
+                        "Categoria \"" + categoriaNome + "\" n\u00e3o encontrada. Crie a categoria primeiro",
+                        "categoria_vinho.html", "Ir para Categorias de vinho");
+                } else {
                 Vinho atual = dao.buscaPorId(id);
                 if (atual == null) {
                     out.println("<p class='result-msg error'>Vinho id=" + id + " n\u00e3o encontrado.</p>");
                 } else if (atual.getNome().equals(nome) && atual.getSafra() == safra
-                        && Math.abs(atual.getPreco() - preco) < 0.001 && atual.getIdCategoria() == idCategoria) {
+                        && Math.abs(atual.getPreco() - preco) < 0.001 && atual.getCategoriaNome().equals(categoriaNome)) {
                     out.println("<p class='result-msg info'>Nenhuma altera\u00e7\u00e3o foi feita. Os dados s\u00e3o id\u00eanticos.</p>");
+                } else if (!atual.getNome().equals(nome) || atual.getSafra() != safra) {
+                    Vinho existente = dao.buscaPorNomeSafra(nome, safra);
+                    if (existente != null && existente.getId() != id) {
+                        out.println("<p class='result-msg error'>J\u00e1 existe outro vinho \"" + nome + "\" safra " + safra + ".</p>");
+                    } else {
+                        Vinho v = new Vinho();
+                        v.setId(id);
+                        v.setNome(nome);
+                        v.setSafra(safra);
+                        v.setPreco(preco);
+                        v.setIdCategoria(cat.getId());
+                        dao.altera(v);
+                        out.println("<p class='result-msg success'>Vinho id=" + id + " alterado com sucesso!</p>");
+                    }
                 } else {
                     Vinho v = new Vinho();
                     v.setId(id);
                     v.setNome(nome);
                     v.setSafra(safra);
                     v.setPreco(preco);
-                    v.setIdCategoria(idCategoria);
+                    v.setIdCategoria(cat.getId());
                     dao.altera(v);
                     out.println("<p class='result-msg success'>Vinho id=" + id + " alterado com sucesso!</p>");
+                }
                 }
 
             } else if ("remover".equals(acao)) {
@@ -124,23 +151,25 @@ public class VinhoServlet extends HttpServlet {
                 if (v == null) {
                     out.println("<p class='result-msg error'>Vinho \"" + nome + "\" safra " + safra + " n\u00e3o encontrado.</p>");
                 } else {
-                    out.println("<table><tr><th>ID</th><th>Nome</th><th>Safra</th><th>Pre\u00e7o</th><th>ID Categoria</th></tr>");
+                    out.println("<table><tr><th>ID</th><th>Nome</th><th>Safra</th><th>Pre\u00e7o</th><th>Categoria</th></tr>");
                     out.println("<tr><td>" + v.getId() + "</td><td>" + v.getNome() + "</td><td>" + v.getSafra()
-                        + "</td><td>R$ " + String.format("%.2f", v.getPreco()) + "</td><td>" + v.getIdCategoria() + "</td></tr>");
+                        + "</td><td>R$ " + String.format("%.2f", v.getPreco()) + "</td><td>" + v.getCategoriaNome() + "</td></tr>");
                     out.println("</table>");
                 }
 
             } else {
                 List<Vinho> vinhos = dao.getLista();
-                out.println("<table><tr><th>ID</th><th>Nome</th><th>Safra</th><th>Pre\u00e7o</th><th>ID Categoria</th></tr>");
+                out.println("<table><tr><th>ID</th><th>Nome</th><th>Safra</th><th>Pre\u00e7o</th><th>Categoria</th></tr>");
                 for (Vinho v : vinhos) {
                     out.println("<tr><td>" + v.getId() + "</td><td>" + v.getNome() + "</td><td>" + v.getSafra()
-                        + "</td><td>R$ " + String.format("%.2f", v.getPreco()) + "</td><td>" + v.getIdCategoria() + "</td></tr>");
+                        + "</td><td>R$ " + String.format("%.2f", v.getPreco()) + "</td><td>" + v.getCategoriaNome() + "</td></tr>");
                 }
                 out.println("</table>");
             }
 
             connection.close();
+        } catch (NumberFormatException e) {
+            out.println("<p class='result-msg error'>Valor inv\u00e1lido para um campo num\u00e9rico. Verifique os dados informados.</p>");
         } catch (Exception e) {
             out.println("<p class='result-msg error'>Erro: " + e.getMessage() + "</p>");
         }

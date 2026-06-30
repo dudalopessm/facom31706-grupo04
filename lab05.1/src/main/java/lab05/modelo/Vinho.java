@@ -6,6 +6,7 @@ public class Vinho {
     private int safra;
     private double preco;
     private int idCategoria;
+    private String categoriaNome;
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -17,4 +18,6 @@ public class Vinho {
     public void setPreco(double preco) { this.preco = preco; }
     public int getIdCategoria() { return idCategoria; }
     public void setIdCategoria(int idCategoria) { this.idCategoria = idCategoria; }
+    public String getCategoriaNome() { return categoriaNome; }
+    public void setCategoriaNome(String categoriaNome) { this.categoriaNome = categoriaNome; }
 }

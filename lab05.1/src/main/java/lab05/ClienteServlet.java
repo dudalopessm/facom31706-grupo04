@@ -64,13 +64,17 @@ public class ClienteServlet extends HttpServlet {
                 String nome = request.getParameter("nome");
                 String email = request.getParameter("email");
                 String senha = request.getParameter("senha");
-                Cliente c = new Cliente();
-                c.setCpf(cpf);
-                c.setNome(nome);
-                c.setEmail(email);
-                c.setSenha(senha);
-                dao.adiciona(c);
-                out.println("<p class='result-msg success'>Cliente \"" + nome + "\" (CPF " + cpf + ") inserido com sucesso!</p>");
+                if (dao.buscaPorCpf(cpf) != null) {
+                    out.println("<p class='result-msg error'>J\u00e1 existe um cliente com o CPF " + cpf + ".</p>");
+                } else {
+                    Cliente c = new Cliente();
+                    c.setCpf(cpf);
+                    c.setNome(nome);
+                    c.setEmail(email);
+                    c.setSenha(senha);
+                    dao.adiciona(c);
+                    out.println("<p class='result-msg success'>Cliente \"" + nome + "\" (CPF " + cpf + ") inserido com sucesso!</p>");
+                }
 
             } else if ("alterar".equals(acao)) {
                 String cpf = request.getParameter("cpf");
@@ -123,6 +127,8 @@ public class ClienteServlet extends HttpServlet {
             }
 
             connection.close();
+        } catch (NumberFormatException e) {
+            out.println("<p class='result-msg error'>Valor inv\u00e1lido para um campo num\u00e9rico. Verifique os dados informados.</p>");
         } catch (Exception e) {
             out.println("<p class='result-msg error'>Erro: " + e.getMessage() + "</p>");
         }
