@@ -94,3 +94,11 @@ CREATE TABLE ItemPedido (
         ON UPDATE CASCADE
         ON DELETE RESTRICT
 );
+
+DROP TABLE ItemSacola;
+DROP TABLE ItemPedido;
+DROP TABLE Pedido;
+DROP TABLE Sacola;
+DROP TABLE Vinho;
+DROP TABLE Cliente;
+DROP TABLE CategoriaVinho;

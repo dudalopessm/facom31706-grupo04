@@ -57,6 +57,21 @@ public class VinhoDAO {
         }
     }
 
+    public void atualizarEstoque(int id, int estoque) throws SQLException {
+        try (Connection conn = ConnectionFactory.getConnection()) {
+            atualizarEstoque(conn, id, estoque);
+        }
+    }
+
+    public void atualizarEstoque(Connection conn, int id, int estoque) throws SQLException {
+        String sql = "UPDATE Vinho SET estoque = ? WHERE id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, estoque);
+            stmt.setInt(2, id);
+            stmt.executeUpdate();
+        }
+    }
+
     public void excluir(int id) throws SQLException {
         String sql = "DELETE FROM Vinho WHERE id = ?";
         try (Connection conn = ConnectionFactory.getConnection();
@@ -108,7 +123,7 @@ public class VinhoDAO {
         return lista;
     }
 
-    private Vinho mapearVinho(ResultSet rs) throws SQLException {
+    Vinho mapearVinho(ResultSet rs) throws SQLException {
         Vinho v = new Vinho();
         v.setId(rs.getInt("id"));
         v.setNome(rs.getString("nome"));

@@ -33,7 +33,7 @@ public class LoginServlet extends HttpServlet {
 
             if (cliente != null) {
                 HttpSession session = request.getSession();
-                session.setAttribute("cliente", cliente);
+                session.setAttribute("clienteLogado", cliente);
                 response.sendRedirect("loja.jsp");
             } else {
                 request.setAttribute("erro", "invalido");

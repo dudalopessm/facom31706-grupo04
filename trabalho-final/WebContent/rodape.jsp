@@ -1,4 +1,17 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
+    import="javaBeans.Cliente, java.util.*, javaBeans.CategoriaVinho, dao.CategoriaVinhoDAO" %>
+<%
+    Cliente rodapeCliente = (Cliente) session.getAttribute("clienteLogado");
+    boolean rodapeLogado = rodapeCliente != null && rodapeCliente.getEmail() != null && !rodapeCliente.getEmail().isEmpty();
+    boolean rodapeAdmin = rodapeLogado && "ADMIN".equals(rodapeCliente.getTipo());
+    String ctx = request.getContextPath();
+
+    List<CategoriaVinho> footerCategorias = new ArrayList<>();
+    try {
+        CategoriaVinhoDAO footerCatDAO = new CategoriaVinhoDAO();
+        footerCategorias = footerCatDAO.listarTodos();
+    } catch (Exception e) { e.printStackTrace(); }
+%>
 <div class="site-footer">
   <div class="container">
     <div class="footer-top">
@@ -14,36 +27,31 @@
       <div class="footer-col">
         <h4>Loja</h4>
         <ul>
-          <li><a href="<%= request.getContextPath() %>/loja.jsp">Todos os vinhos</a></li>
-          <li><a href="<%= request.getContextPath() %>/loja.jsp">Tintos</a></li>
-          <li><a href="<%= request.getContextPath() %>/loja.jsp">Brancos</a></li>
-          <li><a href="<%= request.getContextPath() %>/loja.jsp">Espumantes</a></li>
+          <li><a href="<%= ctx %>/loja.jsp">Todos os vinhos</a></li>
+          <% for (CategoriaVinho cat : footerCategorias) { %>
+            <li><a href="<%= ctx %>/loja.jsp?categoria=<%= java.net.URLEncoder.encode(cat.getNome(), "UTF-8") %>"><%= cat.getNome() + "s" %></a></li>
+          <% } %>
         </ul>
       </div>
 
       <div class="footer-col">
         <h4>Cave Fontana</h4>
         <ul>
-          <li><a href="<%= request.getContextPath() %>/login.jsp">Minha conta</a></li>
-          <li><a href="<%= request.getContextPath() %>/carrinho.jsp">Sacola</a></li>
-          <li><a href="<%= request.getContextPath() %>/historico.jsp">Pedidos</a></li>
+          <% if (rodapeAdmin) { %>
+            <li><a href="<%= ctx %>/perfil.jsp">Minha Conta</a></li>
+            <li><a href="<%= ctx %>/admin/vinhos.jsp">Admin</a></li>
+            <li><a href="<%= ctx %>/admin/pedidos.jsp">Pedidos</a></li>
+          <% } else if (rodapeLogado) { %>
+            <li><a href="<%= ctx %>/perfil.jsp">Minha Conta</a></li>
+            <li><a href="<%= ctx %>/carrinho.jsp">Sacola</a></li>
+            <li><a href="<%= ctx %>/historico.jsp">Pedidos</a></li>
+          <% } else { %>
+            <li><a href="<%= ctx %>/login.jsp">Minha conta</a></li>
+            <li><a href="<%= ctx %>/carrinho.jsp">Sacola</a></li>
+            <li><a href="<%= ctx %>/historico.jsp">Pedidos</a></li>
+          <% } %>
         </ul>
       </div>
-
-      <div class="footer-col">
-        <h4>Receba novidades</h4>
-        <form class="newsletter-form" onsubmit="return false">
-          <input type="email" placeholder="seu@email.com" aria-label="E-mail para newsletter">
-          <button type="submit" aria-label="Inscrever-se">
-            <svg class="icon"><use href="#i-arrow"></use></svg>
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <span>&copy; 2026 Cave Fontana &mdash; Projeto academico de Programacao para Internet (UFU)</span>
-      <span>Beba com modera&ccedil;&atilde;o.</span>
     </div>
   </div>
 </div>

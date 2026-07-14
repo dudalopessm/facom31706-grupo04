@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cave Fontana &mdash; Vinhos selecionados</title>
+<title>Cave Fontana</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -29,7 +29,9 @@
         <p class="lede">Rótulos garimpados de pequenos produtores, guardados à temperatura certa e servidos com a calma de quem entende de espera. Sua adega, sem sair de casa.</p>
         <div class="hero-actions">
           <a href="#loja" class="btn btn-primary">Explorar vinhos</a>
-          <a href="#contato" class="btn btn-ghost">Fale conosco <svg class="icon"><use href="#i-arrow"></use></svg></a>
+          <% if (!temCliente) { %>
+            <a href="login.jsp" class="btn btn-ghost">Login <svg class="icon"><use href="#i-arrow"></use></svg></a>
+          <% } %>
         </div>
       </div>
 
@@ -77,32 +79,6 @@
     </div>
   </section>
 
-  <section class="value-strip reveal">
-    <div class="container">
-      <div class="value-item">
-        <svg class="icon"><use href="#i-leaf"></use></svg>
-        <div>
-          <h3>Pequenos produtores</h3>
-          <p>Parcerias diretas com vinícolas familiares, sem intermediários no caminho até você.</p>
-        </div>
-      </div>
-      <div class="value-item">
-        <svg class="icon"><use href="#i-flask"></use></svg>
-        <div>
-          <h3>Rótulos selecionados a mão</h3>
-          <p>Cada vinho passa por degustação da nossa curadoria antes de entrar na adega.</p>
-        </div>
-      </div>
-      <div class="value-item">
-        <svg class="icon"><use href="#i-drop"></use></svg>
-        <div>
-          <h3>Guarda em temperatura controlada</h3>
-          <p>Do estoque até a entrega, seus vinhos viajam na temperatura ideal de conservação.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <section class="shop-section" id="loja">
     <div class="container">
       <div class="shop-head reveal">
@@ -113,37 +89,95 @@
         <%
             CategoriaVinhoDAO catDAO = new CategoriaVinhoDAO();
             List<CategoriaVinho> categorias = catDAO.listarTodos();
+            String catFiltro = request.getParameter("categoria");
         %>
         <div class="filters" id="filters" role="group" aria-label="Filtrar por categoria">
-          <button class="filter-chip" data-filter="todos" aria-pressed="true">Todos</button>
-          <% for (CategoriaVinho cat : categorias) { %>
-            <button class="filter-chip" data-filter="cat<%= cat.getId() %>" aria-pressed="false"><%= cat.getNome() %></button>
+          <a href="loja.jsp" class="filter-chip" style="<%= (catFiltro == null || catFiltro.isEmpty()) ? "background:var(--amber);color:#1C1B19;" : "color:var(--text-muted);" %>text-decoration:none">Todos</a>
+          <% for (CategoriaVinho cat : categorias) {
+              boolean ativo = catFiltro != null && !catFiltro.isEmpty() &&
+                  (catFiltro.equalsIgnoreCase(cat.getNome()) || String.valueOf(cat.getId()).equals(catFiltro));
+          %>
+            <a href="loja.jsp?categoria=<%= java.net.URLEncoder.encode(cat.getNome(), "UTF-8") %>"
+               class="filter-chip"
+               style="<%= ativo ? "background:var(--amber);color:#1C1B19;" : "color:var(--text-muted);" %>text-decoration:none"><%= cat.getNome() %></a>
           <% } %>
         </div>
       </div>
 
       <%
           VinhoDAO vinhoDAO = new VinhoDAO();
-          List<Vinho> vinhos = vinhoDAO.listarTodos();
+          List<Vinho> vinhos;
+
+          if (catFiltro != null && !catFiltro.isEmpty()) {
+              CategoriaVinho catFiltrada = null;
+              try {
+                  catFiltrada = catDAO.buscarPorId(Integer.parseInt(catFiltro));
+              } catch (NumberFormatException e) {
+                  for (CategoriaVinho cat : categorias) {
+                      if (cat.getNome().equalsIgnoreCase(catFiltro)) {
+                          catFiltrada = cat;
+                          break;
+                      }
+                  }
+              }
+              if (catFiltrada != null) {
+                  vinhos = vinhoDAO.listarPorCategoria(catFiltrada.getId());
+              } else {
+                  vinhos = vinhoDAO.listarTodos();
+              }
+          } else {
+              vinhos = vinhoDAO.listarTodos();
+          }
       %>
 
       <div class="wine-grid" id="wineGrid">
         <%
-            String bottleSVG = "<svg viewBox=\"0 0 60 150\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M24 10h12v18l6 10v96a6 6 0 0 1-6 6H24a6 6 0 0 1-6-6V38l6-10V10Z\"/><path d=\"M18 55h24\" opacity=\"0.5\"/><rect x=\"18\" y=\"70\" width=\"24\" height=\"34\" fill=\"currentColor\" opacity=\"0.14\" stroke=\"none\"/></svg>";
             String[] catColors = {"#C98A3B", "#E0AD6B", "#7A2C3B", "#D98E96", "#E8D9A0"};
 
             for (Vinho vinho : vinhos) {
+                boolean isAdmin = temCliente && "ADMIN".equals(clienteLogado.getTipo());
+                if (!isAdmin && vinho.getEstoque() <= 0) continue;
                 CategoriaVinho cat = catDAO.buscarPorId(vinho.getIdCategoria());
                 String catName = cat != null ? cat.getNome() : "";
                 String catSlug = "cat" + (cat != null ? cat.getId() : "0");
                 int colorIdx = (vinho.getIdCategoria() - 1) % catColors.length;
                 String accent = catColors[colorIdx];
         %>
-        <article class="wine-card reveal" data-category="<%= catSlug %>" style="--accent:<%= accent %>">
-          <div class="wine-card__bottle"><%= bottleSVG %></div>
+        <%
+            String fotoDoVinho = vinho.getCaminhoFoto();
+            boolean temFoto = fotoDoVinho != null && !fotoDoVinho.isEmpty();
+        %>
+        <article class="wine-card reveal js-modal-card" data-category="<%= catSlug %>" style="--accent:<%= accent %>"
+                 data-id="<%= vinho.getId() %>"
+                 data-nome="<%= vinho.getNome() %>"
+                 data-safra="<%= vinho.getSafra() %>"
+                 data-preco="<%= String.format("%.2f", vinho.getPreco()) %>"
+                 data-estoque="<%= vinho.getEstoque() %>"
+                 data-catnome="<%= catName %>"
+                 data-descricao="<%= vinho.getDescricao() != null ? vinho.getDescricao().replace("\"", "&quot;").replace("'", "\\'") : "" %>"
+                 data-foto="<%= (vinho.getCaminhoFoto() != null) ? vinho.getCaminhoFoto() : "" %>">
+          <% if (temFoto) { %>
+            <div class="wine-card__bottle">
+              <img src="<%= fotoDoVinho %>" alt="<%= vinho.getNome() %>"
+                   style="width:74px;height:190px;object-fit:cover;border-radius:8px">
+            </div>
+          <% } else { %>
+            <div class="wine-card__bottle">
+              <svg viewBox="0 0 60 150" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M24 10h12v18l6 10v96a6 6 0 0 1-6 6H24a6 6 0 0 1-6-6V38l6-10V10Z"/>
+                <path d="M18 55h24" opacity="0.5"/>
+                <rect x="18" y="70" width="24" height="34" fill="currentColor" opacity="0.14" stroke="none"/>
+              </svg>
+            </div>
+          <% } %>
           <span class="wine-card__tag"><%= catName %></span>
           <h3><%= vinho.getNome() %></h3>
           <p class="wine-card__meta"><%= vinho.getSafra() %></p>
+          <% if (isAdmin) { %>
+            <p class="wine-card__meta" style="color:<%= vinho.getEstoque() <= 0 ? "var(--wine-soft)" : "var(--amber-soft)" %>">
+              <%= vinho.getEstoque() <= 0 ? "* " : "" %>Estoque: <%= vinho.getEstoque() %>
+            </p>
+          <% } %>
           <div class="wine-card__row">
             <span class="wine-card__price">R$ <%= String.format("%.2f", vinho.getPreco()) %> <small>/ 750ml</small></span>
             <% if (temCliente && vinho.getEstoque() > 0) { %>
@@ -173,8 +207,87 @@
 
 </main>
 
+<div class="modal-overlay" id="modalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,0.75);align-items:center;justify-content:center">
+  <div class="modal-card" id="modalCard" style="display:block">
+    <button class="modal-fechar" onclick="fecharModal()">&times;</button>
+    <div class="modal-conteudo">
+      <div class="modal-foto">
+        <img id="modalImg" src="" alt="">
+      </div>
+      <div class="modal-info">
+        <span class="wine-card__tag" id="modalCat"></span>
+        <h2 id="modalNome"></h2>
+        <p class="modal-ano" id="modalSafra"></p>
+        <p class="modal-preco" id="modalPreco"></p>
+        <p class="modal-estoque-text" id="modalEstoque"></p>
+        <p class="modal-descricao" id="modalDesc"></p>
+        <form action="carrinho" method="post" class="modal-form" id="modalForm">
+          <input type="hidden" name="acao" value="adicionar">
+          <input type="hidden" name="idVinho" id="modalIdVinho">
+          <input type="hidden" name="quantidade" value="1">
+          <button type="submit" class="add-btn" data-name="">
+            <svg class="icon"><use href="#i-plus"></use></svg><span>Adicionar à sacola</span>
+          </button>
+        </form>
+        <p id="modalLogin" style="display:none;margin-top:12px">
+          <a href="login.jsp" class="botao">Faça login</a> para adicionar ao carrinho.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <%@ include file="rodape.jsp" %>
 
 <script src="js/script.js"></script>
+<script>
+  (function() {
+    document.querySelectorAll('.js-modal-card').forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input') || e.target.closest('select')) return;
+        abrirModal(this);
+      });
+    });
+
+    document.querySelector('.modal-overlay') && document.querySelector('.modal-overlay').addEventListener('click', function(e) {
+      if (e.target === this) fecharModal();
+    });
+  })();
+
+  function abrirModal(card) {
+    var id = card.getAttribute('data-id');
+    document.getElementById('modalImg').src = card.getAttribute('data-foto') || 'images/vinhos/sem-foto.jpg';
+    document.getElementById('modalImg').onerror = function(){ this.src='images/vinhos/sem-foto.jpg'; };
+    document.getElementById('modalNome').textContent = card.getAttribute('data-nome');
+    document.getElementById('modalSafra').textContent = 'Safra ' + card.getAttribute('data-safra');
+    document.getElementById('modalPreco').innerHTML = 'R$ ' + card.getAttribute('data-preco') + ' <small>/ 750ml</small>';
+    document.getElementById('modalCat').textContent = card.getAttribute('data-catnome');
+    document.getElementById('modalDesc').textContent = card.getAttribute('data-descricao');
+    document.getElementById('modalIdVinho').value = id;
+    document.getElementById('modalForm').style.display = 'block';
+    document.getElementById('modalLogin').style.display = 'none';
+
+    var estoque = parseInt(card.getAttribute('data-estoque')) || 0;
+    if (estoque > 0) {
+      document.getElementById('modalEstoque').textContent = estoque + ' unidades em estoque';
+    } else {
+      document.getElementById('modalEstoque').textContent = 'Produto indisponível';
+      document.getElementById('modalForm').style.display = 'none';
+    }
+
+    <% if (!temCliente) { %>
+      document.getElementById('modalForm').style.display = 'none';
+      document.getElementById('modalLogin').style.display = 'block';
+    <% } %>
+
+    document.getElementById('modalForm').querySelector('.add-btn').setAttribute('data-name', card.getAttribute('data-nome'));
+    var overlay = document.getElementById('modalOverlay');
+    overlay.style.display = 'flex';
+  }
+
+  function fecharModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+  }
+</script>
 </body>
 </html>

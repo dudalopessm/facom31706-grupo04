@@ -14,9 +14,14 @@ import javaBeans.Pedido;
 public class PedidoDAO {
 
     public int inserir(Pedido pedido) throws SQLException {
+        try (Connection conn = ConnectionFactory.getConnection()) {
+            return inserir(conn, pedido);
+        }
+    }
+
+    public int inserir(Connection conn, Pedido pedido) throws SQLException {
         String sql = "INSERT INTO Pedido (data_conclusao, valor_total, status_pagamento, status_envio, id_sacola) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setObject(1, pedido.getDataConclusao() != null ? pedido.getDataConclusao() : LocalDateTime.now());
             stmt.setDouble(2, pedido.getValorTotal());
             stmt.setString(3, pedido.getStatusPagamento());
@@ -37,20 +42,6 @@ public class PedidoDAO {
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapearPedido(rs);
-                }
-            }
-        }
-        return null;
-    }
-
-    public Pedido buscarPorIdSacola(int idSacola) throws SQLException {
-        String sql = "SELECT * FROM Pedido WHERE id_sacola = ?";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idSacola);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return mapearPedido(rs);
@@ -86,6 +77,26 @@ public class PedidoDAO {
             }
         }
         return lista;
+    }
+
+    public void atualizarStatusEnvio(int id, String status) throws SQLException {
+        String sql = "UPDATE Pedido SET status_envio = ? WHERE id = ?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            stmt.setInt(2, id);
+            stmt.executeUpdate();
+        }
+    }
+
+    public void atualizarStatusPagamento(int id, String status) throws SQLException {
+        String sql = "UPDATE Pedido SET status_pagamento = ? WHERE id = ?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            stmt.setInt(2, id);
+            stmt.executeUpdate();
+        }
     }
 
     private Pedido mapearPedido(ResultSet rs) throws SQLException {

@@ -1,6 +1,7 @@
 package servlets;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -26,12 +27,12 @@ public class CarrinhoServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("cliente") == null) {
+        if (session == null || session.getAttribute("clienteLogado") == null) {
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
 
-        Cliente cliente = (Cliente) session.getAttribute("cliente");
+        Cliente cliente = (Cliente) session.getAttribute("clienteLogado");
         String acao = request.getParameter("acao");
 
         try {
@@ -46,7 +47,20 @@ public class CarrinhoServlet extends HttpServlet {
                 int quantidade = Integer.parseInt(request.getParameter("quantidade"));
 
                 Vinho vinho = vinhoDAO.buscarPorId(idVinho);
-                if (vinho == null || vinho.getEstoque() < quantidade) {
+                if (vinho == null) {
+                    request.getRequestDispatcher("loja.jsp").forward(request, response);
+                    return;
+                }
+
+                int qtdAtual = 0;
+                if (sacola != null) {
+                    ItemSacola existente = itemDAO.buscarItem(sacola.getId(), idVinho);
+                    if (existente != null) {
+                        qtdAtual = existente.getQuantidade();
+                    }
+                }
+
+                if (qtdAtual + quantidade > vinho.getEstoque()) {
                     request.setAttribute("erro", "estoque_insuficiente");
                     request.setAttribute("idVinho", idVinho);
                     request.getRequestDispatcher("vinho.jsp").forward(request, response);
@@ -90,14 +104,22 @@ public class CarrinhoServlet extends HttpServlet {
                 int idVinho = Integer.parseInt(request.getParameter("idVinho"));
 
                 if (sacola != null) {
-                    itemDAO.remover(sacola.getId(), idVinho);
-
-                    List<ItemSacola> itens = itemDAO.listarPorSacola(sacola.getId());
-                    if (itens.isEmpty()) {
-                        sacolaDAO.atualizarStatus(sacola.getId(), "CANCELADA");
+                    ItemSacola item = itemDAO.buscarItem(sacola.getId(), idVinho);
+                    if (item != null) {
+                        if (item.getQuantidade() > 1) {
+                            itemDAO.atualizarQuantidade(sacola.getId(), idVinho, item.getQuantidade() - 1);
+                            request.getRequestDispatcher("carrinho.jsp").forward(request, response);
+                            return;
+                        } else {
+                            itemDAO.remover(sacola.getId(), idVinho);
+                            List<ItemSacola> itensRestantes = itemDAO.listarPorSacola(sacola.getId());
+                            if (itensRestantes.isEmpty()) {
+                                sacolaDAO.atualizarStatus(sacola.getId(), "CANCELADA");
+                            }
+                        }
                     }
                 }
-                request.getRequestDispatcher("carrinho.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/sucesso.jsp?voltar=" + URLEncoder.encode("carrinho.jsp", "UTF-8"));
             } else {
                 request.getRequestDispatcher("loja.jsp").forward(request, response);
             }

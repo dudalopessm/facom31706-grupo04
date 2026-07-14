@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
     import="java.util.*, javaBeans.*, dao.*" %>
 <%
-    Cliente admin = (Cliente) session.getAttribute("cliente");
+    Cliente admin = (Cliente) session.getAttribute("clienteLogado");
     if (admin == null || !"ADMIN".equals(admin.getTipo())) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
@@ -12,7 +12,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin &mdash; Categorias &mdash; Cave Fontana</title>
+<title>Cave Fontana - Categorias</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

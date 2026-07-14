@@ -37,6 +37,7 @@
   var accountForms = document.querySelectorAll(".account-panel-form");
 
   function setAccountTab(tab){
+    if(!accountTabs.length) return;
     accountTabs.forEach(function(t){
       t.setAttribute("aria-selected", t.getAttribute("data-tab") === tab ? "true" : "false");
     });
@@ -45,18 +46,19 @@
     });
   }
 
+  var openAccountPanel, closeAccountPanel;
   if(profileBtn && accountPanel){
-    function openAccountPanel(tab){
+    openAccountPanel = function(tab){
       accountPanel.classList.add("is-open");
       profileBtn.setAttribute("aria-expanded", "true");
       if(tab){ setAccountTab(tab); }
       var firstInput = accountPanel.querySelector(".account-panel-form.is-active input");
       if(firstInput){ setTimeout(function(){ firstInput.focus(); }, 200); }
-    }
-    function closeAccountPanel(){
+    };
+    closeAccountPanel = function(){
       accountPanel.classList.remove("is-open");
       profileBtn.setAttribute("aria-expanded", "false");
-    }
+    };
     profileBtn.addEventListener("click", function(e){
       e.stopPropagation();
       if(accountPanel.classList.contains("is-open")){ closeAccountPanel(); }
@@ -65,12 +67,14 @@
     accountTabs.forEach(function(tab){
       tab.addEventListener("click", function(){ setAccountTab(tab.getAttribute("data-tab")); });
     });
-    accountPanel.querySelectorAll("[data-switch]").forEach(function(link){
-      link.addEventListener("click", function(e){
-        e.preventDefault();
-        setAccountTab(link.getAttribute("data-switch"));
+    if(accountPanel.querySelectorAll){
+      accountPanel.querySelectorAll("[data-switch]").forEach(function(link){
+        link.addEventListener("click", function(e){
+          e.preventDefault();
+          setAccountTab(link.getAttribute("data-switch"));
+        });
       });
-    });
+    }
     accountPanel.addEventListener("click", function(e){ e.stopPropagation(); });
     document.addEventListener("click", function(){ closeAccountPanel(); });
     document.addEventListener("keydown", function(e){
@@ -84,28 +88,16 @@
     if(navLinks){ navLinks.classList.remove("is-open"); }
     if(menuToggle){ menuToggle.setAttribute("aria-expanded", "false"); }
     if(menuIcon){ menuIcon.innerHTML = '<use href="#i-menu"></use>'; }
-    if(profileBtn && accountPanel){ openAccountPanel("entrar"); }
+    if(openAccountPanel){ openAccountPanel("entrar"); }
+    else{ window.location.href = this.getAttribute("href"); }
   });
   document.getElementById("navPedidos") && document.getElementById("navPedidos").addEventListener("click", function(e){
     e.preventDefault();
     if(navLinks){ navLinks.classList.remove("is-open"); }
     if(menuToggle){ menuToggle.setAttribute("aria-expanded", "false"); }
     if(menuIcon){ menuIcon.innerHTML = '<use href="#i-menu"></use>'; }
-    if(profileBtn && accountPanel){ openAccountPanel("entrar"); }
-  });
-
-  /* ---------- FILTROS ---------- */
-  var filterButtons = document.querySelectorAll(".filter-chip");
-  filterButtons.forEach(function(btn){
-    btn.addEventListener("click", function(){
-      filterButtons.forEach(function(b){ b.setAttribute("aria-pressed","false"); });
-      btn.setAttribute("aria-pressed","true");
-      var filter = btn.getAttribute("data-filter");
-      document.querySelectorAll(".wine-card").forEach(function(card){
-        var match = filter === "todos" || card.getAttribute("data-category") === filter;
-        card.classList.toggle("is-hidden", !match);
-      });
-    });
+    if(openAccountPanel){ openAccountPanel("entrar"); }
+    else{ window.location.href = this.getAttribute("href"); }
   });
 
   /* ---------- CARRINHO ---------- */
@@ -123,9 +115,11 @@
         var qtdInput = form.querySelector("input[name='quantidade']");
         var qtd = qtdInput ? parseInt(qtdInput.value) || 1 : 1;
         cartCount += qtd;
-        cartBadge.textContent = cartCount;
-        cartBadge.classList.add("is-visible", "bump");
-        setTimeout(function(){ cartBadge.classList.remove("bump"); }, 380);
+        if(cartBadge){
+          cartBadge.textContent = cartCount;
+          cartBadge.classList.add("is-visible", "bump");
+          setTimeout(function(){ cartBadge.classList.remove("bump"); }, 380);
+        }
 
         var original = btn.innerHTML;
         btn.classList.add("is-added");
@@ -136,10 +130,12 @@
         }, 1400);
 
         var name = btn.getAttribute("data-name") || "Vinho";
-        toastText.textContent = name + " adicionado à sacola";
-        toast.classList.add("is-visible");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(function(){ toast.classList.remove("is-visible"); }, 2200);
+        if(toastText && toast){
+          toastText.textContent = name + " adicionado à sacola";
+          toast.classList.add("is-visible");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function(){ toast.classList.remove("is-visible"); }, 2200);
+        }
 
         setTimeout(function(){ form.submit(); }, 300);
       }

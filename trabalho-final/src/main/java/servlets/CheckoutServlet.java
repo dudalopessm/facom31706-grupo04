@@ -1,6 +1,8 @@
 package servlets;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -10,15 +12,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import dao.ConnectionFactory;
 import dao.ItemPedidoDAO;
 import dao.ItemSacolaDAO;
 import dao.PedidoDAO;
 import dao.SacolaDAO;
+import dao.VinhoDAO;
 import javaBeans.Cliente;
 import javaBeans.ItemPedido;
 import javaBeans.ItemSacola;
 import javaBeans.Pedido;
 import javaBeans.Sacola;
+import javaBeans.Vinho;
 
 @WebServlet("/checkout")
 public class CheckoutServlet extends HttpServlet {
@@ -28,18 +33,16 @@ public class CheckoutServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("cliente") == null) {
+        if (session == null || session.getAttribute("clienteLogado") == null) {
             request.getRequestDispatcher("login.jsp").forward(request, response);
             return;
         }
 
-        Cliente cliente = (Cliente) session.getAttribute("cliente");
+        Cliente cliente = (Cliente) session.getAttribute("clienteLogado");
 
         try {
             SacolaDAO sacolaDAO = new SacolaDAO();
             ItemSacolaDAO itemSacolaDAO = new ItemSacolaDAO();
-            PedidoDAO pedidoDAO = new PedidoDAO();
-            ItemPedidoDAO itemPedidoDAO = new ItemPedidoDAO();
 
             Sacola sacola = sacolaDAO.buscarAtivaPorCliente(cliente.getEmail());
             if (sacola == null) {
@@ -60,27 +63,52 @@ public class CheckoutServlet extends HttpServlet {
                 valorTotal += item.getSubtotal();
             }
 
-            sacolaDAO.atualizarStatus(sacola.getId(), "CONVERTIDA");
+            Connection conn = null;
+            try {
+                conn = ConnectionFactory.getConnection();
+                conn.setAutoCommit(false);
 
-            Pedido pedido = new Pedido();
-            pedido.setDataConclusao(LocalDateTime.now());
-            pedido.setValorTotal(valorTotal);
-            pedido.setStatusPagamento("PAGO");
-            pedido.setStatusEnvio("PENDENTE");
-            pedido.setIdSacola(sacola.getId());
-            int idPedido = pedidoDAO.inserir(pedido);
+                PedidoDAO pedidoDAO = new PedidoDAO();
+                ItemPedidoDAO itemPedidoDAO = new ItemPedidoDAO();
+                VinhoDAO vinhoDAO = new VinhoDAO();
 
-            for (ItemSacola item : itens) {
-                ItemPedido itemPedido = new ItemPedido();
-                itemPedido.setIdPedido(idPedido);
-                itemPedido.setIdVinho(item.getIdVinho());
-                itemPedido.setQuantidade(item.getQuantidade());
-                itemPedido.setPrecoUnitario(item.getVinho().getPreco());
-                itemPedidoDAO.inserir(itemPedido);
+                sacolaDAO.atualizarStatus(conn, sacola.getId(), "CONVERTIDA");
+
+                Pedido pedido = new Pedido();
+                pedido.setDataConclusao(LocalDateTime.now());
+                pedido.setValorTotal(valorTotal);
+                pedido.setStatusPagamento("PAGO");
+                pedido.setStatusEnvio("PENDENTE");
+                pedido.setIdSacola(sacola.getId());
+                int idPedido = pedidoDAO.inserir(conn, pedido);
+
+                for (ItemSacola item : itens) {
+                    ItemPedido itemPedido = new ItemPedido();
+                    itemPedido.setIdPedido(idPedido);
+                    itemPedido.setIdVinho(item.getIdVinho());
+                    itemPedido.setQuantidade(item.getQuantidade());
+                    itemPedido.setPrecoUnitario(item.getVinho().getPreco());
+                    itemPedidoDAO.inserir(conn, itemPedido);
+
+                    Vinho v = vinhoDAO.buscarPorId(item.getIdVinho());
+                    int novoEstoque = v.getEstoque() - item.getQuantidade();
+                    vinhoDAO.atualizarEstoque(conn, item.getIdVinho(), novoEstoque);
+                }
+
+                conn.commit();
+                request.setAttribute("idPedido", idPedido);
+                request.getRequestDispatcher("confirmacao.jsp").forward(request, response);
+            } catch (Exception ex) {
+                if (conn != null) {
+                    try { conn.rollback(); } catch (SQLException rb) { }
+                }
+                throw ex;
+            } finally {
+                if (conn != null) {
+                    try { conn.setAutoCommit(true); } catch (SQLException ignored) { }
+                    ConnectionFactory.closeConnection(conn);
+                }
             }
-
-            request.setAttribute("idPedido", idPedido);
-            request.getRequestDispatcher("confirmacao.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.getRequestDispatcher("erro.jsp").forward(request, response);

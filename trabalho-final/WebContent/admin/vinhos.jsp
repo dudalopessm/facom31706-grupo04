@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
     import="java.util.*, javaBeans.*, dao.*" %>
 <%
-    Cliente admin = (Cliente) session.getAttribute("cliente");
+    Cliente admin = (Cliente) session.getAttribute("clienteLogado");
     if (admin == null || !"ADMIN".equals(admin.getTipo())) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
@@ -12,7 +12,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin &mdash; Vinhos &mdash; Cave Fontana</title>
+<title>Cave Fontana - Vinhos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -55,11 +55,11 @@
         %>
         <tr>
           <td><%= vinho.getId() %></td>
-          <td><img src="<%= foto %>" alt="" onerror="this.src='../images/vinhos/sem-foto.jpg';" class="miniatura" style="width:36px;height:46px"></td>
+          <td><img src="<%= foto %>" alt="" onerror="this.onerror=null;this.src='../images/vinhos/sem-foto.jpg';" class="miniatura" style="width:36px;height:46px"></td>
           <td><%= vinho.getNome() %></td>
           <td><%= vinho.getSafra() %></td>
           <td>R$ <%= String.format("%.2f", vinho.getPreco()) %></td>
-          <td><%= vinho.getEstoque() %></td>
+          <td><%= vinho.getEstoque() <= 0 ? "* " : "" %><%= vinho.getEstoque() %></td>
           <td><%= cat != null ? cat.getNome() : "" %></td>
           <td>
             <a href="editarVinho.jsp?id=<%= vinho.getId() %>" class="botao botao-pequeno">Editar</a>

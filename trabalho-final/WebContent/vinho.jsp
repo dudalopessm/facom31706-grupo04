@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><%= request.getParameter("id") %> &mdash; Cave Fontana</title>
+<title>Cave Fontana</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -43,7 +43,7 @@
       </div>
       <div class="detail-image-wrap">
         <img src="<%= foto %>" alt="<%= vinho.getNome() %>"
-             onerror="this.src='images/vinhos/sem-foto.jpg';">
+             onerror="this.onerror=null;this.src='images/vinhos/sem-foto.jpg';">
       </div>
     </div>
 
@@ -52,7 +52,10 @@
       <h1><%= vinho.getNome() %></h1>
       <span class="safra">Safra <%= vinho.getSafra() %></span>
       <p class="preco">R$ <%= String.format("%.2f", vinho.getPreco()) %></p>
-      <p class="estoque"><%= vinho.getEstoque() > 0 ? vinho.getEstoque() + " unidades em estoque" : "Produto indisponível" %></p>
+      <%
+    boolean adminView = temCliente && "ADMIN".equals(clienteLogado.getTipo());
+%>
+<p class="estoque"><%= vinho.getEstoque() > 0 ? vinho.getEstoque() + " unidades em estoque" : (adminView ? "* Esgotado" : "Produto indispon\u00edvel") %></p>
 
       <p class="descricao"><%= vinho.getDescricao() != null ? vinho.getDescricao() : "" %></p>
 

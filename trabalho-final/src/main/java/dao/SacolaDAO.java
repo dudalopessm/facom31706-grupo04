@@ -59,28 +59,18 @@ public class SacolaDAO {
     }
 
     public void atualizarStatus(int id, String status) throws SQLException {
+        try (Connection conn = ConnectionFactory.getConnection()) {
+            atualizarStatus(conn, id, status);
+        }
+    }
+
+    public void atualizarStatus(Connection conn, int id, String status) throws SQLException {
         String sql = "UPDATE Sacola SET status = ? WHERE id = ?";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, status);
             stmt.setInt(2, id);
             stmt.executeUpdate();
         }
-    }
-
-    public List<Sacola> listarPorCliente(String emailCliente) throws SQLException {
-        String sql = "SELECT * FROM Sacola WHERE email_cliente = ? ORDER BY data_criacao DESC";
-        List<Sacola> lista = new ArrayList<>();
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, emailCliente);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    lista.add(mapearSacola(rs));
-                }
-            }
-        }
-        return lista;
     }
 
     public List<Sacola> listarTodas() throws SQLException {

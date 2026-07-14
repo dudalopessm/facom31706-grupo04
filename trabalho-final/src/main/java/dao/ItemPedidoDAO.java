@@ -13,9 +13,14 @@ import javaBeans.Vinho;
 public class ItemPedidoDAO {
 
     public void inserir(ItemPedido item) throws SQLException {
+        try (Connection conn = ConnectionFactory.getConnection()) {
+            inserir(conn, item);
+        }
+    }
+
+    public void inserir(Connection conn, ItemPedido item) throws SQLException {
         String sql = "INSERT INTO ItemPedido (id_pedido, id_vinho, quantidade, preco_unitario) VALUES (?, ?, ?, ?)";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, item.getIdPedido());
             stmt.setInt(2, item.getIdVinho());
             stmt.setInt(3, item.getQuantidade());

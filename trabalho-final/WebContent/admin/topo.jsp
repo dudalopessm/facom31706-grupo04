@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
     import="javaBeans.Cliente" %>
 <%
-    Cliente adminLogado = (Cliente) session.getAttribute("cliente");
+    Cliente adminLogado = (Cliente) session.getAttribute("clienteLogado");
     String contexto = request.getContextPath();
 %>
 <header class="site-header" id="siteHeader" style="border-bottom-color:var(--line)">
@@ -21,6 +21,7 @@
     <nav class="nav-links" aria-label="Navegação administrativa" style="display:flex;align-items:center;gap:24px">
       <a href="vinhos.jsp">Vinhos</a>
       <a href="categorias.jsp">Categorias</a>
+      <a href="pedidos.jsp">Pedidos</a>
       <a href="<%= contexto %>/loja.jsp" style="color:var(--text-muted);font-size:13px">Ver Loja</a>
       <a href="<%= contexto %>/logout" style="color:var(--text-muted);font-size:13px">Sair</a>
     </nav>

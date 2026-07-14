@@ -17,22 +17,18 @@
                     cartCount += item.getQuantidade();
                 }
             }
-        } catch (Exception e) { }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 %>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2.4 12.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="9.5" cy="20.5" r="1.4"/><circle cx="17.5" cy="20.5" r="1.4"/></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-4.8-4.8"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
     <symbol id="i-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></symbol>
-    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s7 8 7 12.5A7 7 0 0 1 5 15.5C5 11 12 3 12 3Z"/></symbol>
-    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M4 20c8 0 14-4 16-16-8 0-14 6-16 16Z"/><path d="M6 18c3-4 6-7 12-11"/></symbol>
-    <symbol id="i-flask" viewBox="0 0 24 24"><path d="M10 3h4M10 3v6l-5.5 9.5A1.6 1.6 0 0 0 6 21h12a1.6 1.6 0 0 0 1.5-2.5L14 9V3"/><path d="M8.5 15h7"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1.4-4 4.2-6 7.5-6s6.1 2 7.5 6"/></symbol>
     <symbol id="i-package" viewBox="0 0 24 24"><path d="M3.5 8.5 12 4l8.5 4.5v7L12 20l-8.5-4.5v-7Z"/><path d="M3.5 8.5 12 13l8.5-4.5M12 13v7"/></symbol>
   </defs>
@@ -56,12 +52,14 @@
     <nav class="nav-links" id="navLinks" aria-label="Navegação principal">
       <a href="<%= contexto %>/loja.jsp">Adega</a>
       <% if (temCliente) { %>
-        <a href="<%= contexto %>/historico.jsp">Pedidos <svg class="icon" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-left:2px"><use href="#i-package"></use></svg></a>
         <% if ("ADMIN".equals(clienteLogado.getTipo())) { %>
+          <a href="<%= contexto %>/admin/pedidos.jsp">Pedidos <svg class="icon" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-left:2px"><use href="#i-package"></use></svg></a>
           <a href="<%= contexto %>/admin/vinhos.jsp">Admin</a>
+        <% } else { %>
+          <a href="<%= contexto %>/historico.jsp">Pedidos <svg class="icon" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-left:2px"><use href="#i-package"></use></svg></a>
         <% } %>
       <% } else { %>
-        <a href="#" id="navPerfil">Entrar</a>
+        <a href="login.jsp">Entrar</a>
       <% } %>
     </nav>
 
@@ -76,7 +74,8 @@
             <div style="text-align:center;padding:10px 0;color:var(--amber-soft);font-weight:600">
               Ol&aacute;, <jsp:getProperty name="clienteLogado" property="nome" />
             </div>
-            <a href="<%= contexto %>/logout" class="btn btn-primary account-submit" style="text-align:center;text-decoration:none">Sair</a>
+            <a href="<%= contexto %>/perfil.jsp" class="btn btn-primary account-submit" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px">Editar Perfil</a>
+            <a href="<%= contexto %>/logout" class="btn btn-primary account-submit" style="display:block;text-align:center;text-decoration:none;background:var(--wine)">Sair</a>
           <% } else { %>
           <div class="account-tabs" role="tablist">
             <button class="account-tab" data-tab="entrar" role="tab" aria-selected="true">Entrar</button>
@@ -124,10 +123,16 @@
         </div>
       </div>
 
-      <a href="<%= contexto %>/carrinho.jsp" class="icon-btn" aria-label="Ver sacola" id="cartBtn">
-        <svg class="icon"><use href="#i-cart"></use></svg>
-        <span class="cart-badge <%= cartCount > 0 ? "is-visible" : "" %>" id="cartBadge"><%= cartCount %></span>
-      </a>
+      <% if (temCliente && "ADMIN".equals(clienteLogado.getTipo())) { %>
+        <a href="<%= contexto %>/admin/pedidos.jsp" class="icon-btn" aria-label="Pedidos">
+          <svg class="icon"><use href="#i-package"></use></svg>
+        </a>
+      <% } else { %>
+        <a href="<%= contexto %>/carrinho.jsp" class="icon-btn" aria-label="Ver sacola" id="cartBtn">
+          <svg class="icon"><use href="#i-cart"></use></svg>
+          <span class="cart-badge <%= cartCount > 0 ? "is-visible" : "" %>" id="cartBadge"><%= cartCount %></span>
+        </a>
+      <% } %>
 
       <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="navLinks">
         <svg class="icon" id="menuIcon"><use href="#i-menu"></use></svg>

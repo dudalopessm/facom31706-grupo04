@@ -44,15 +44,6 @@ public class ItemSacolaDAO {
         }
     }
 
-    public void removerPorSacola(int idSacola) throws SQLException {
-        String sql = "DELETE FROM ItemSacola WHERE id_sacola = ?";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, idSacola);
-            stmt.executeUpdate();
-        }
-    }
-
     public List<ItemSacola> listarPorSacola(int idSacola) throws SQLException {
         String sql = "SELECT isc.*, v.* FROM ItemSacola isc JOIN Vinho v ON isc.id_vinho = v.id WHERE isc.id_sacola = ?";
         List<ItemSacola> lista = new ArrayList<>();

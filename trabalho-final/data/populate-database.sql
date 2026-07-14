@@ -1,7 +1,7 @@
 USE cave_fontana;
 
 INSERT INTO Cliente (email, nome, cpf, senha, tipo) VALUES
-('admin@cavefontana.com', 'Administrador', '00000000000', 'admin123', 'ADMIN'),
+('admin@cavefontana.com', 'Administrador', '70017982669', 'admin123', 'ADMIN'),
 ('ana@email.com', 'Ana Souza', '12345678901', 'senha123', 'CLIENTE'),
 ('bruno@email.com', 'Bruno Lima', '23456789012', 'senha456', 'CLIENTE'),
 ('carla@email.com', 'Carla Mendes', '34567890123', 'senha789', 'CLIENTE');
