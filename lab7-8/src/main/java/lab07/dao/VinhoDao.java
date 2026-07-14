@@ -49,6 +49,23 @@ public class VinhoDao {
         }
     }
 
+    public List<Vinho> getLista() {
+        String sql = "SELECT v.*, c.nome as categoria_nome FROM vinho v JOIN categoria_vinho c ON c.id = v.id_categoria";
+        List<Vinho> vinhos = new ArrayList<>();
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                vinhos.add(mapVinho(rs));
+            }
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return vinhos;
+    }
+
     public Vinho buscaPorNomeSafra(String nome, int safra) {
         String sql = "SELECT v.*, c.nome as categoria_nome FROM vinho v JOIN categoria_vinho c ON c.id = v.id_categoria WHERE v.nome=? AND v.safra=?";
         try {

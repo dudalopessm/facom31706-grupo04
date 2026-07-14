@@ -22,19 +22,28 @@ public class DownloadServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String arquivo = request.getParameter("arquivo");
+        String dirParam = request.getParameter("dir");
+
         if (arquivo == null || arquivo.trim().isEmpty()) {
-            response.sendRedirect("downloads.jsp");
+            response.sendRedirect("vinhos.jsp");
             return;
         }
 
         arquivo = URLDecoder.decode(arquivo, StandardCharsets.UTF_8.name());
 
-        String diretorio = getServletContext().getRealPath("/arquivos");
-        File file = new File(diretorio, arquivo);
+        String baseDir = getServletContext().getRealPath("/arquivos");
+        String fullPath;
+        if (dirParam != null && !dirParam.trim().isEmpty()) {
+            fullPath = baseDir + File.separator + dirParam + File.separator + arquivo;
+        } else {
+            fullPath = baseDir + File.separator + arquivo;
+        }
+
+        File file = new File(fullPath);
 
         if (!file.exists() || file.isDirectory()) {
             response.setContentType("text/html;charset=UTF-8");
-            response.getWriter().println("<p class='result-msg error'>Arquivo nao encontrado: " + arquivo + "</p>");
+            response.getWriter().println("<p class='result-msg error'>Arquivo nao encontrado.</p>");
             return;
         }
 

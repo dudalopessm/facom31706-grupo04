@@ -3,7 +3,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Cave Fontana - Lab 7-8</title>
+  <title>Cave Fontana</title>
 </head>
 <body>
 <div class="root">
@@ -11,33 +11,38 @@
 
   <div class="sections">
     <div class="card">
-      <div class="card-head"><i class="ti ti-login"></i><span>Login</span></div>
+      <div class="card-head"><i class="ti ti-tag"></i><span>Categorias de Vinho</span></div>
+      <p>Cadastrar, alterar, consultar e remover categorias de vinhos.</p>
       <div class="actions">
-        <a class="btn primary" href="login.jsp"><i class="ti ti-login"></i> Entrar</a>
+        <a class="btn primary" href="categoria-vinho.jsp"><i class="ti ti-tag"></i> Acessar</a>
       </div>
     </div>
     <div class="card">
-      <div class="card-head"><i class="ti ti-user-plus"></i><span>Cadastro</span></div>
+      <div class="card-head"><i class="ti ti-bottle"></i><span>Vinhos</span></div>
+      <p>Listar, buscar por nome+safra, enviar fotos e baixar arquivos.</p>
       <div class="actions">
-        <a class="btn primary" href="cadastro.jsp"><i class="ti ti-user-plus"></i> Cadastrar</a>
+        <a class="btn primary" href="vinhos.jsp"><i class="ti ti-bottle"></i> Acessar</a>
       </div>
     </div>
     <div class="card">
-      <div class="card-head"><i class="ti ti-search"></i><span>Busca de Produtos</span></div>
+      <div class="card-head"><i class="ti ti-user"></i><span>Clientes</span></div>
+      <p>Cadastrar, alterar, consultar e remover clientes por CPF.</p>
       <div class="actions">
-        <a class="btn primary" href="busca.jsp"><i class="ti ti-search"></i> Buscar</a>
+        <a class="btn primary" href="clientes.jsp"><i class="ti ti-user"></i> Acessar</a>
       </div>
     </div>
     <div class="card">
-      <div class="card-head"><i class="ti ti-upload"></i><span>Upload de Arquivos</span></div>
+      <div class="card-head"><i class="ti ti-shopping-cart"></i><span>Pedidos</span></div>
+      <p>Gerenciar pedidos: status, itens e consultas por CPF.</p>
       <div class="actions">
-        <a class="btn primary" href="upload.jsp"><i class="ti ti-upload"></i> Enviar arquivos</a>
+        <a class="btn primary" href="pedidos.jsp"><i class="ti ti-shopping-cart"></i> Acessar</a>
       </div>
     </div>
     <div class="card">
-      <div class="card-head"><i class="ti ti-download"></i><span>Downloads</span></div>
+      <div class="card-head"><i class="ti ti-list-details"></i><span>Itens do Pedido</span></div>
+      <p>Inserir, alterar e remover vinhos dos pedidos.</p>
       <div class="actions">
-        <a class="btn primary" href="downloads.jsp"><i class="ti ti-download"></i> Baixar arquivos</a>
+        <a class="btn primary" href="item-pedido.jsp"><i class="ti ti-list-details"></i> Acessar</a>
       </div>
     </div>
   </div>

@@ -3,7 +3,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Erro no Login</title>
+  <title>Cave Fontana - Erro na Busca</title>
 </head>
 <body>
 <div class="page">
@@ -12,9 +12,11 @@
   <div class="card">
     <p class="result-msg error">
       <i class="ti ti-alert-triangle"></i>
-      Usuario ou senha invalidos. Tente novamente.
+      <%= request.getAttribute("buscaErro") != null ? request.getAttribute("buscaErro") : "Nenhum vinho encontrado." %>
     </p>
-    <a class="btn primary" href="login.jsp"><i class="ti ti-login"></i> Tentar novamente</a>
+    <div class="form-actions" style="margin-top:12px;">
+      <a class="btn primary" href="vinhos.jsp"><i class="ti ti-search"></i> Nova busca</a>
+    </div>
   </div>
 
   <jsp:include page="footer.jsp" />

@@ -107,6 +107,24 @@ public class CategoriaVinhoDao {
         }
     }
 
+    public boolean possuiVinhos(String nome) {
+        CategoriaVinho cat = buscaPorNome(nome);
+        if (cat == null) return false;
+        String sql = "SELECT COUNT(*) FROM vinho WHERE id_categoria = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, cat.getId());
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            boolean possui = rs.getInt(1) > 0;
+            rs.close();
+            stmt.close();
+            return possui;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean removePorNome(String nome) {
         String sql = "DELETE FROM categoria_vinho WHERE nome=?";
         try {

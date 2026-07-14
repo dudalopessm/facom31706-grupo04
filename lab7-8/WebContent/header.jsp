@@ -5,14 +5,14 @@
   <div class="logo"><i class="ti ti-bottle"></i></div>
   <div>
     <div class="title">Cave Fontana</div>
-    <div class="sub">Lab 7-8 - Componentes, Servlet Forward, Upload</div>
+    <div class="sub">Sistema de Vinhos &mdash; Lab 7-8</div>
   </div>
 </div>
 <nav style="margin-bottom: 1.75rem; display: flex; flex-wrap: wrap; gap: 6px;">
   <a class="btn" href="index.jsp"><i class="ti ti-home"></i> Inicio</a>
-  <a class="btn" href="login.jsp"><i class="ti ti-login"></i> Login</a>
-  <a class="btn" href="cadastro.jsp"><i class="ti ti-user-plus"></i> Cadastro</a>
-  <a class="btn" href="busca.jsp"><i class="ti ti-search"></i> Busca</a>
-  <a class="btn" href="upload.jsp"><i class="ti ti-upload"></i> Upload</a>
-  <a class="btn" href="downloads.jsp"><i class="ti ti-download"></i> Downloads</a>
+  <a class="btn" href="categoria-vinho.jsp"><i class="ti ti-tag"></i> Categorias</a>
+  <a class="btn" href="vinhos.jsp"><i class="ti ti-bottle"></i> Vinhos</a>
+  <a class="btn" href="clientes.jsp"><i class="ti ti-user"></i> Clientes</a>
+  <a class="btn" href="pedidos.jsp"><i class="ti ti-shopping-cart"></i> Pedidos</a>
+  <a class="btn" href="item-pedido.jsp"><i class="ti ti-list-details"></i> Itens</a>
 </nav>

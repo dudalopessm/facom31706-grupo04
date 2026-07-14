@@ -1,0 +1,129 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cave Fontana - Itens do Pedido</title>
+</head>
+<body>
+<div class="page">
+  <jsp:include page="header.jsp" />
+
+  <div class="card">
+    <h2><i class="ti ti-list"></i> Listar todos os itens</h2>
+    <a class="btn primary" href="PedidoServlet?acao=listarItens" target="item-result"><i class="ti ti-refresh"></i> Carregar lista</a>
+    <div style="margin-top:8px;"><iframe name="item-result" style="width:100%;border:none;min-height:60px;"></iframe></div>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-plus"></i> Inserir item no pedido</legend>
+      <form class="form-grid" action="PedidoServlet" method="post" target="item-result">
+        <input type="hidden" name="acao" value="inserirItem">
+        <div class="form-row">
+          <label for="ip-id-pedido">ID do pedido</label>
+          <input type="number" id="ip-id-pedido" name="idPedido" required min="1">
+        </div>
+        <div class="form-row">
+          <label for="ip-vinho-nome">Nome do vinho</label>
+          <input type="text" id="ip-vinho-nome" name="vinhoNome" required>
+        </div>
+        <div class="form-row">
+          <label for="ip-safra">Safra</label>
+          <input type="number" id="ip-safra" name="safra" required>
+        </div>
+        <div class="form-row">
+          <label for="ip-quantidade">Quantidade</label>
+          <input type="number" id="ip-quantidade" name="quantidade" required min="1">
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-device-floppy"></i> Inserir</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-pencil"></i> Alterar quantidade do item</legend>
+      <form class="form-grid" action="PedidoServlet" method="post" target="item-result">
+        <input type="hidden" name="acao" value="alterarItem">
+        <div class="form-row">
+          <label for="ip-alt-id-pedido">ID do pedido</label>
+          <input type="number" id="ip-alt-id-pedido" name="idPedido" required min="1">
+        </div>
+        <div class="form-row">
+          <label for="ip-alt-vinho-nome">Nome do vinho</label>
+          <input type="text" id="ip-alt-vinho-nome" name="vinhoNome" required>
+        </div>
+        <div class="form-row">
+          <label for="ip-alt-safra">Safra</label>
+          <input type="number" id="ip-alt-safra" name="safra" required>
+        </div>
+        <div class="form-row">
+          <label for="ip-alt-data-item">Data/Hora do item (YYYY-MM-DD HH:MM:SS)</label>
+          <input type="text" id="ip-alt-data-item" name="dataItem" placeholder="Ex: 2026-06-21 23:47:15" pattern="\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}" title="Formato: YYYY-MM-DD HH:MM:SS" required>
+        </div>
+        <div class="form-row">
+          <label for="ip-alt-nova-qtd">Nova quantidade</label>
+          <input type="number" id="ip-alt-nova-qtd" name="novaQuantidade" required min="1">
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-device-floppy"></i> Alterar</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-search"></i> Consultar itens por ID do pedido</legend>
+      <form class="form-grid" action="PedidoServlet" method="get" target="item-result">
+        <input type="hidden" name="acao" value="buscarItensPorPedido">
+        <div class="form-row">
+          <label for="ip-cons-id">ID do pedido</label>
+          <input type="number" id="ip-cons-id" name="idPedido" required min="1">
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-search"></i> Consultar</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <div class="card">
+    <fieldset>
+      <legend><i class="ti ti-trash"></i> Remover (total ou parcial) item do pedido</legend>
+      <form class="form-grid" action="PedidoServlet" method="post" target="item-result">
+        <input type="hidden" name="acao" value="removerItem">
+        <div class="form-row">
+          <label for="ip-rem-id-pedido">ID do pedido</label>
+          <input type="number" id="ip-rem-id-pedido" name="idPedido" required min="1">
+        </div>
+        <div class="form-row">
+          <label for="ip-rem-vinho-nome">Nome do vinho</label>
+          <input type="text" id="ip-rem-vinho-nome" name="vinhoNome" required>
+        </div>
+        <div class="form-row">
+          <label for="ip-rem-safra">Safra</label>
+          <input type="number" id="ip-rem-safra" name="safra" required>
+        </div>
+        <div class="form-row">
+          <label for="ip-rem-data-item">Data/Hora do item (YYYY-MM-DD HH:MM:SS)</label>
+          <input type="text" id="ip-rem-data-item" name="dataItem" placeholder="Ex: 2026-06-21 23:47:15" pattern="\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}" title="Formato: YYYY-MM-DD HH:MM:SS" required>
+        </div>
+        <div class="form-row">
+          <label for="ip-rem-qtd">Quantidade a remover</label>
+          <input type="number" id="ip-rem-qtd" name="quantidade" required min="1">
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" type="submit"><i class="ti ti-trash"></i> Remover</button>
+        </div>
+      </form>
+    </fieldset>
+  </div>
+
+  <jsp:include page="footer.jsp" />
+</div>
+</body>
+</html>

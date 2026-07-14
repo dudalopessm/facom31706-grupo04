@@ -100,11 +100,41 @@ public class PedidoDao {
         }
     }
 
+    public boolean possuiItens(int idPedido) {
+        String sql = "SELECT COUNT(*) FROM item_pedido WHERE id_pedido = ?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setInt(1, idPedido);
+            ResultSet rs = stmt.executeQuery();
+            rs.next();
+            boolean possui = rs.getInt(1) > 0;
+            rs.close();
+            stmt.close();
+            return possui;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean remove(int id) {
         String sql = "DELETE FROM pedido WHERE id=?";
         try {
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setInt(1, id);
+            int linhas = stmt.executeUpdate();
+            stmt.close();
+            return linhas > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean removePorClienteCpfEData(String clienteCpf, String data) {
+        String sql = "DELETE FROM pedido WHERE cliente_cpf=? AND data_pedido=?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, clienteCpf);
+            stmt.setString(2, data);
             int linhas = stmt.executeUpdate();
             stmt.close();
             return linhas > 0;

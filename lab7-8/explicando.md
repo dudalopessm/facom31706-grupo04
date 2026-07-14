@@ -1,195 +1,209 @@
-# Laboratório 7-8 — Evolução do Lab05.1
+# Laboratório 7-8 — Cave Fontana
 
-## O que mudou e por quê
+## 1. O que é JSP e componentes reusáveis (`<jsp:include>`)
 
-### 1. HTML estático → JSP com componentes reusáveis
+**JSP (JavaServer Pages)** é uma tecnologia que permite mesclar HTML com código Java dentro de uma mesma página. Diferente de um arquivo `.html` estático, uma página JSP é processada no servidor (o Tomcat a compila em um Servlet) antes de enviar a resposta ao navegador. Isso permite lógica dinâmica e, principalmente, a **reutilização de componentes visuais**.
 
-**Antes (lab05.1):** Cada página era um `.html` puro, com o cabeçalho, menu e rodapé copiados manualmente em cada arquivo. Se quisesse alterar o menu, precisava editar **todas as páginas**.
+### Os dois componentes reusáveis
 
-```html
-<!-- cliente.html — cabeçalho duplicado -->
-<div class="header">
-  <div class="logo"><i class="ti ti-user"></i></div>
-  <div>
-    <div class="page-title">Cave Fontana</div>
-    <div class="page-sub">Clientes</div>
-  </div>
-</div>
+Criamos dois arquivos JSP independentes que contêm trechos de HTML repetidos em todas as páginas do sistema:
+
+| Componente | Arquivo | O que contém |
+|---|---|---|
+| Cabeçalho + menu | `WebContent/header.jsp` | Logo "Cave Fontana", subtítulo e barra de navegação com links para Início, Categorias, Vinhos, Clientes, Pedidos e Itens |
+| Rodapé | `WebContent/footer.jsp` | Linha separadora e texto de copyright |
+
+### Onde a action `<jsp:include>` foi usada
+
+Em **todas** as páginas JSP principais do sistema, os componentes são integrados via `<jsp:include>`:
+
+```
+index.jsp            ─┐
+categoria-vinho.jsp   │
+vinhos.jsp            ├── <jsp:include page="header.jsp" />
+clientes.jsp          │    ... conteúdo da página ...
+pedidos.jsp           │    <jsp:include page="footer.jsp" />
+item-pedido.jsp       │
+vinho-detalhe.jsp     │
+vinho-erro.jsp        ┘
 ```
 
-**Agora (lab7-8):** Criamos `header.jsp` e `footer.jsp` — componentes separados que são **incluídos dinamicamente** via `<jsp:include>`. O menu agora vive em um único lugar.
-
+Exemplo em `vinhos.jsp:12` e `vinhos.jsp:79`:
 ```jsp
-<!-- index.jsp — reaproveita os componentes -->
 <body>
-  <jsp:include page="header.jsp" />   <!-- puxa o menu -->
-  ...conteúdo principal...
-  <jsp:include page="footer.jsp" />   <!-- puxa o rodapé -->
+<div class="page">
+  <jsp:include page="header.jsp" />    <!-- linha 12: insere cabeçalho + menu -->
+
+  <!-- conteúdo principal da página: busca, tabela de vinhos, etc. -->
+
+  <jsp:include page="footer.jsp" />    <!-- linha 79: insere rodapé -->
+</div>
 </body>
 ```
 
-**Por quê?** DRY (Don't Repeat Yourself). Com JSP podemos fatorar o visual comum e reutilizá-lo em N páginas. Uma alteração no menu reflete em todas as páginas instantaneamente.
+**Por que `<jsp:include>`?** É uma **inclusão dinâmica**: a cada requisição, o conteúdo do componente é processado e inserido. Se o `header.jsp` mudar (ex.: adicionar um link novo no menu), a alteração reflete automaticamente em todas as páginas que o incluem — sem editar arquivo por arquivo.
 
 ---
 
-### 2. Resposta direta do Servlet → Servlet como controlador com <jsp:forward>
+## 2. Servlet processa requisição e encaminha com `<jsp:forward>`
 
-**Antes (lab05.1):** O `ClienteServlet` escrevia HTML diretamente com `out.println()` — o Servlet era ao mesmo tempo **controlador** e **visão**. Misturava lógica de negócio com HTML.
+O enunciado pede que, dado o login, cadastro ou busca existente, um **Servlet** receba a requisição e **encaminhe o fluxo** para páginas JSP distintas conforme o resultado (sucesso ou erro).
 
-```java
-// ClienteServlet.java — escreve HTML na unha
-out.println("<table><tr><th>ID</th><th>Nome</th></tr>");
-out.println("<tr><td>" + c.getId() + "</td><td>" + c.getNome() + "</td></tr>");
+No nosso contexto da Cave Fontana, implementamos isso na **busca de vinhos por nome + safra**.
+
+### Como funciona
+
+**Página de origem:** `vinhos.jsp` — contém um formulário de busca com dois campos:
+
+```jsp
+<!-- vinhos.jsp — formulário de busca -->
+<form action="BuscaVinhoServlet" method="post">
+  <input type="text"  name="nome"  required>   <!-- nome do vinho -->
+  <input type="number" name="safra" required>  <!-- ano da safra -->
+  <button type="submit">Buscar</button>
+</form>
 ```
 
-**Agora (lab7-8):** O Servlet **apenas processa a requisição** e **encaminha o fluxo** (`RequestDispatcher.forward()`) para páginas JSP distintas — uma de sucesso, outra de erro. Separação clara entre controle e apresentação (MVC).
+**Servlet controlador:** `BuscaVinhoServlet` (`src/main/java/lab07/BuscaVinhoServlet.java:30-36`) — recebe os parâmetros, consulta o banco e decide para onde redirecionar:
 
 ```java
-// LoginServlet.java — lógica + encaminhamento
-if (cliente != null) {
-    request.setAttribute("usuario", cliente.getNome());
-    destino = "/sucesso.jsp";             ← forward para sucesso
+Vinho vinho = dao.buscaPorNomeSafra(nome, safra);  // consulta no banco
+
+if (vinho != null) {
+    // SUCESSO: encontrou o vinho → forward para página de detalhes
+    destino = "/vinho-detalhe.jsp?id=" + vinho.getId();
 } else {
-    destino = "/erro.jsp";                 ← forward para erro
+    // ERRO: não encontrou → forward para página de erro com mensagem
+    request.setAttribute("buscaErro", "Nenhum vinho encontrado...");
+    destino = "/vinho-erro.jsp";
 }
+
 RequestDispatcher dispatcher = request.getRequestDispatcher(destino);
 dispatcher.forward(request, response);
 ```
 
-**Por quê?** Facilita manutenção: o designer mexe no JSP sem encostar no Java, e o desenvolvedor mexe no Servlet sem emendar HTML. O `<jsp:forward>` (equivalente ao `RequestDispatcher.forward()`) impede que o usuário veja a URL de processamento.
+O `RequestDispatcher.forward()` é o equivalente em Java puro da tag `<jsp:forward>`. Ambos realizam um **redirecionamento interno** no servidor: o navegador nunca vê a URL do Servlet, apenas a URL da página original.
+
+### Páginas de destino
+
+| Resultado | Forward para | O que exibe |
+|---|---|---|
+| Vinho encontrado | `vinho-detalhe.jsp?id=X` | Detalhes do vinho + formulário de upload de fotos + links de download |
+| Não encontrado | `vinho-erro.jsp` | Mensagem "Nenhum vinho encontrado" + botão "Nova busca" |
+
+### Diagrama do fluxo
+
+```
+vinhos.jsp ──(POST nome+safra)──→ BuscaVinhoServlet
+                                       │
+                         ┌─────────────┴─────────────┐
+                         ▼                           ▼
+                 vinho-detalhe.jsp             vinho-erro.jsp
+               (detalhes + upload           (mensagem de erro
+                + download fotos)            + link para voltar)
+```
 
 ---
 
-### 3. Upload de arquivos (funcionalidade nova)
+## 3. Upload de dois arquivos e download
 
-**Antes (lab05.1):** Não existia upload. Os formulários enviavam apenas dados textuais (`application/x-www-form-urlencoded`).
+### Upload
 
-**Agora (lab7-8):** Dois arquivos podem ser enviados simultaneamente via formulário com `enctype="multipart/form-data"`. Usamos as bibliotecas `commons-fileupload` e `commons-io` para processar os arquivos no servidor.
+O sistema permite enviar **duas fotos** de um mesmo vinho. O formulário está em `vinho-detalhe.jsp`, acessível após buscar um vinho ou clicar em "Ver" na listagem.
+
+**Formulário** (`vinho-detalhe.jsp:86-99`):
 
 ```jsp
-<!-- upload.jsp — dois campos de arquivo -->
-<form action="UploadServlet" method="post" enctype="multipart/form-data">
-  <input type="file" name="arquivo1" />
-  <input type="file" name="arquivo2" />
-  <button type="submit">Enviar</button>
+<form action="UploadFotoServlet" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="idVinho" value="<%= vId %>">  <!-- ID do vinho -->
+  <input type="file" name="foto1" required>                 <!-- primeira foto -->
+  <input type="file" name="foto2">                          <!-- segunda foto (opcional) -->
+  <button type="submit">Enviar Fotos</button>
 </form>
 ```
 
+**`enctype="multipart/form-data"`** é obrigatório — sem ele o navegador não envia o conteúdo binário do arquivo, apenas o nome.
+
+**Servlet processador:** `UploadFotoServlet` (`src/main/java/lab07/UploadFotoServlet.java:59-76`) usa a biblioteca `commons-fileupload` (arquivo `.jar` em `WEB-INF/lib/`):
+
 ```java
-// UploadServlet.java — itera sobre os itens do formulário
-List<FileItem> items = upload.parseRequest(request);
+DiskFileItemFactory factory = new DiskFileItemFactory();
+ServletFileUpload upload = new ServletFileUpload(factory);
+List<FileItem> items = upload.parseRequest(request);  // parseia o multipart
+
 for (FileItem item : items) {
-    if (!item.isFormField()) {
-        item.write(new File(diretorio, nomeArquivo));  // salva o arquivo
+    if (!item.isFormField()) {                         // é um arquivo, não campo texto
+        String nomeArquivo = new File(item.getName()).getName();
+        File arquivoSalvo = new File(diretorio, nomeArquivo);
+        item.write(arquivoSalvo);                     // salva no disco
     }
 }
 ```
 
-Os arquivos ficam na pasta `WebContent/arquivos/` e podem ser baixados via `DownloadServlet` que usa `Content-Disposition: attachment`.
+As fotos são salvas em `WebContent/arquivos/fotos/<id_vinho>/`. Cada vinho tem sua própria subpasta.
 
-**Por quê?** Aplicações reais precisam lidar com arquivos — fotos, documentos, relatórios. O `commons-fileupload` abstrai a complexidade do parsing multipart.
+Após o upload, o servlet faz **forward de volta** para `vinho-detalhe.jsp` com uma mensagem de sucesso ou erro, mantendo o usuário na mesma página.
+
+### Download
+
+Na mesma página `vinho-detalhe.jsp`, abaixo do formulário de upload, são listadas as fotos já enviadas para aquele vinho:
+
+```jsp
+<a class="btn primary" href="DownloadServlet?dir=fotos/<%= vId %>&arquivo=<%= nome %>">
+  <i class="ti ti-download"></i> Baixar
+</a>
+```
+
+**Servlet de download:** `DownloadServlet` (`src/main/java/lab07/DownloadServlet.java:37-56`) localiza o arquivo no disco e o envia ao navegador com o cabeçalho HTTP `Content-Disposition: attachment`, que força o download:
+
+```java
+response.setContentType(mimeType);
+response.setHeader("Content-Disposition",
+        "attachment; filename=\"" + file.getName() + "\"");
+
+try (FileInputStream fis = new FileInputStream(file);
+     OutputStream os = response.getOutputStream()) {
+    byte[] buffer = new byte[4096];
+    int bytesRead;
+    while ((bytesRead = fis.read(buffer)) != -1) {
+        os.write(buffer, 0, bytesRead);
+    }
+}
+```
+
+O parâmetro `dir=fotos/<id>` permite ao servlet localizar a subpasta correta do vinho, cumprindo o requisito de "baixar em seus respectivos contextos".
 
 ---
 
-### 4. Dados fixos → Banco de dados MySQL
+## Bibliotecas externas
 
-**Antes (lab05.1):** Já usava MySQL com as mesmas 5 tabelas (`cliente`, `categoria_vinho`, `vinho`, `pedido`, `item_pedido`).
+| Arquivo | Função |
+|---|---|
+| `commons-fileupload-1.5.jar` | Processamento de formulários `multipart/form-data` (upload) |
+| `commons-io-2.11.0.jar` | Dependência do `commons-fileupload` |
+| `mysql-connector-j-9.7.0.jar` | Conexão JDBC com MySQL |
 
-**Agora (lab7-8):** Mantivemos o mesmo banco, mas agora os servlets (Login, Cadastro, Busca) se conectam a ele via `ConnectionFactory` + DAOs, ao invés de usar dados fixos no código.
-
-**Por quê?** Dados fixos não persistem. Com o banco, um cliente cadastrado continua existindo depois que o servidor reinicia, e pode fazer login depois de se cadastrar.
-
----
-
-## Fluxo de funcionamento do sistema
-
-### Navegação geral
-
-```
-index.jsp
-  │
-  ├── login.jsp  ──→ LoginServlet ──→ sucesso.jsp  (CPF + senha OK)
-  │                                     └── erro.jsp  (inválido)
-  │
-  ├── cadastro.jsp ──→ CadastroServlet ──→ cadastro-sucesso.jsp (inseriu no banco)
-  │                                          └── cadastro-erro.jsp (validação)
-  │
-  ├── busca.jsp ──→ BuscaServlet ──→ busca-resultado.jsp (tabela com vinhos)
-  │                                    └── busca-erro.jsp (nenhum resultado)
-  │
-  ├── upload.jsp ──→ UploadServlet ──→ página de resultado (links para download)
-  │
-  └── downloads.jsp ──→ DownloadServlet (baixa o arquivo)
-```
-
-### Fluxo detalhado do Login (exemplo)
-
-```
-1. Usuário acessa login.jsp
-2. Preenche CPF + Senha e submete o formulário (POST /LoginServlet)
-3. LoginServlet recebe os parâmetros (request.getParameter)
-4. Abre conexão com o banco (ConnectionFactory)
-5. Chama ClienteDao.buscaPorCpfESenha(cpf, senha)
-6. Se encontrou: request.setAttribute("usuario", nome)
-                → RequestDispatcher.forward("/sucesso.jsp")
-   Se não:      request.setAttribute("erro", "CPF ou senha inválidos")
-                → RequestDispatcher.forward("/erro.jsp")
-7. A página JSP de destino (sucesso.jsp ou erro.jsp) renderiza a resposta
-   usando os atributos colocados no request
-8. O usuário nunca vê a URL do Servlet na barra de endereços (forward é interno)
-```
-
-### Fluxo detalhado do Upload
-
-```
-1. Usuário acessa upload.jsp
-2. Seleciona dois arquivos e submete (POST /UploadServlet, multipart/form-data)
-3. UploadServlet verifica se é multipart
-4. Cria DiskFileItemFactory + ServletFileUpload
-5. Chama upload.parseRequest(request) → obtém List<FileItem>
-6. Para cada FileItem que não é campo de formulário:
-   a. Extrai o nome original do arquivo
-   b. Salva em WebContent/arquivos/ via item.write()
-7. Exibe mensagem de sucesso com cada arquivo salvo
-8. Usuário pode ir para downloads.jsp para ver a lista e baixar
-```
-
-### Fluxo detalhado do Download
-
-```
-1. Usuário acessa downloads.jsp
-2. A JSP lista os arquivos da pasta /arquivos usando File.listFiles()
-3. Cada arquivo tem um link para DownloadServlet?arquivo=nome
-4. Ao clicar, DownloadServlet:
-   a. Localiza o arquivo no diretório
-   b. Configura Content-Disposition: attachment
-   c. Copia o conteúdo do arquivo para o response.getOutputStream()
-5. O navegador inicia o download do arquivo
-```
+Os `.jar` ficam em `WebContent/WEB-INF/lib/` e são automaticamente incluídos no classpath pelo Tomcat.
 
 ---
 
-## Estrutura final de diretórios
+## Estrutura final
 
 ```
-C:\duda\workspace\lab7-8\
+lab7-8/
 ├── WebContent/
-│   ├── index.jsp              ← página inicial (usa <jsp:include>)
-│   ├── header.jsp             ← componente reutilizável
-│   ├── footer.jsp             ← componente reutilizável
-│   ├── login.jsp              ← formulário de login
-│   ├── sucesso.jsp            ← forward após login OK
-│   ├── erro.jsp               ← forward após login inválido
-│   ├── cadastro.jsp           ← formulário de cadastro
-│   ├── cadastro-sucesso.jsp   ← forward após cadastro OK
-│   ├── cadastro-erro.jsp      ← forward após erro no cadastro
-│   ├── busca.jsp              ← formulário de busca
-│   ├── busca-resultado.jsp    ← forward com resultados
-│   ├── busca-erro.jsp         ← forward sem resultados
-│   ├── upload.jsp             ← formulário com 2 inputs file
-│   ├── downloads.jsp          ← lista arquivos para download
-│   ├── css/style.css          ← estilos
-│   ├── arquivos/              ← pasta onde os uploads são salvos
+│   ├── header.jsp               ← componente reutilizável (cabecalho + menu)
+│   ├── footer.jsp               ← componente reutilizável (rodapé)
+│   ├── index.jsp                ← página inicial
+│   ├── categoria-vinho.jsp      ← CRUD de categorias (usa <jsp:include>)
+│   ├── vinhos.jsp               ← lista + busca (usa <jsp:include>)
+│   ├── vinho-detalhe.jsp        ← detalhe + upload + download (usa <jsp:include>)
+│   ├── vinho-erro.jsp           ← forward de erro na busca (usa <jsp:include>)
+│   ├── clientes.jsp             ← CRUD de clientes (usa <jsp:include>)
+│   ├── pedidos.jsp              ← CRUD de pedidos (usa <jsp:include>)
+│   ├── item-pedido.jsp          ← CRUD de itens (usa <jsp:include>)
+│   ├── css/style.css
+│   ├── arquivos/fotos/<id>/     ← fotos enviadas por vinho
 │   └── WEB-INF/
 │       ├── web.xml
 │       └── lib/
@@ -198,22 +212,12 @@ C:\duda\workspace\lab7-8\
 │           └── mysql-connector-j-9.7.0.jar
 │
 └── src/main/java/lab07/
-    ├── ConnectionFactory.java
-    ├── LoginServlet.java       ← processa login, forward para sucesso/erro
-    ├── CadastroServlet.java    ← processa cadastro, forward para sucesso/erro
-    ├── BuscaServlet.java       ← processa busca, forward para resultado/erro
-    ├── UploadServlet.java      ← processa upload de 2 arquivos
-    ├── DownloadServlet.java    ← serve arquivos para download
-    ├── modelo/
-    │   ├── Cliente.java
-    │   ├── CategoriaVinho.java
-    │   ├── Vinho.java
-    │   ├── Pedido.java
-    │   └── ItemPedido.java
-    └── dao/
-        ├── ClienteDao.java
-        ├── CategoriaVinhoDao.java
-        ├── VinhoDao.java
-        ├── PedidoDao.java
-        └── ItemPedidoDao.java
+    ├── BuscaVinhoServlet.java    ← busca vinho nome+safra, forward sucesso/erro
+    ├── UploadFotoServlet.java    ← upload de 2 fotos, forward com mensagem
+    ├── DownloadServlet.java      ← serve arquivos para download
+    ├── ConnectionFactory.java    ← conexão JDBC com MySQL
+    ├── modelo/  (Cliente, CategoriaVinho, Vinho, Pedido, ItemPedido)
+    └── dao/     (reaproveitados do lab05)
 ```
+
+Os servlets de CRUD (`CategoriaVinhoServlet`, `ClienteServlet`, `PedidoServlet`) e a estrutura de modelo/DAO foram reaproveitados do laboratório anterior e não são detalhados aqui.
