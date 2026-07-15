@@ -24,14 +24,12 @@ public class CadastroServlet extends HttpServlet {
         String confirmarSenha = request.getParameter("confirmarSenha");
 
         if (email == null || nome == null || cpf == null || senha == null) {
-            request.setAttribute("erro", "campos_vazios");
-            request.getRequestDispatcher("cadastro.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/cadastro.jsp?erro=campos_vazios");
             return;
         }
 
         if (!senha.equals(confirmarSenha)) {
-            request.setAttribute("erro", "senhas_diferentes");
-            request.getRequestDispatcher("cadastro.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/cadastro.jsp?erro=senhas_diferentes");
             return;
         }
 
@@ -39,8 +37,7 @@ public class CadastroServlet extends HttpServlet {
             ClienteDAO dao = new ClienteDAO();
 
             if (dao.buscarPorEmail(email) != null) {
-                request.setAttribute("erro", "email_existente");
-                request.getRequestDispatcher("cadastro.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/cadastro.jsp?erro=email_existente");
                 return;
             }
 
@@ -52,17 +49,15 @@ public class CadastroServlet extends HttpServlet {
             cliente.setTipo("CLIENTE");
 
             dao.inserir(cliente);
-            request.setAttribute("cadastro", "ok");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/login.jsp?cadastro=ok");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("erro", "erro_interno");
-            request.getRequestDispatcher("cadastro.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/cadastro.jsp?erro=erro_interno");
         }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("cadastro.jsp").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/cadastro.jsp");
     }
 }

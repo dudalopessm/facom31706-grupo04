@@ -33,8 +33,7 @@ public class PerfilServlet extends HttpServlet {
         String confirmarSenha = request.getParameter("confirmarSenha");
 
         if (nome == null || cpf == null || senhaAtual == null) {
-            request.setAttribute("erroPerfil", "Preencha todos os campos obrigat\u00F3rios.");
-            request.getRequestDispatcher("/perfil.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/perfil.jsp?erroPerfil=campos_vazios");
             return;
         }
 
@@ -43,15 +42,13 @@ public class PerfilServlet extends HttpServlet {
             Cliente verificado = dao.buscarPorEmailESenha(cliente.getEmail(), senhaAtual);
 
             if (verificado == null) {
-                request.setAttribute("erroPerfil", "Senha atual incorreta.");
-                request.getRequestDispatcher("/perfil.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/perfil.jsp?erroPerfil=senha_atual_incorreta");
                 return;
             }
 
             if (novaSenha != null && !novaSenha.isEmpty()) {
                 if (!novaSenha.equals(confirmarSenha)) {
-                    request.setAttribute("erroPerfil", "A nova senha e a confirma\u00E7\u00E3o n\u00E3o coincidem.");
-                    request.getRequestDispatcher("/perfil.jsp").forward(request, response);
+                    response.sendRedirect(request.getContextPath() + "/perfil.jsp?erroPerfil=senhas_nao_coincidem");
                     return;
                 }
                 cliente.setSenha(novaSenha);
@@ -66,13 +63,12 @@ public class PerfilServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/perfil.jsp?sucesso=ok");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("erroPerfil", "Erro ao atualizar perfil: " + e.getMessage());
-            request.getRequestDispatcher("/perfil.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/erro.jsp");
         }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/perfil.jsp").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/perfil.jsp");
     }
 }

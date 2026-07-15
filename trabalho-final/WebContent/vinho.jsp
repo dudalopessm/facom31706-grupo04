@@ -59,7 +59,7 @@
 
       <p class="descricao"><%= vinho.getDescricao() != null ? vinho.getDescricao() : "" %></p>
 
-      <% if (temCliente && vinho.getEstoque() > 0) { %>
+      <% if (temCliente && !adminView && vinho.getEstoque() > 0) { %>
         <form action="carrinho" method="post" class="form-adicionar">
           <input type="hidden" name="acao" value="adicionar">
           <input type="hidden" name="idVinho" value="<%= vinho.getId() %>">
@@ -70,7 +70,7 @@
           </button>
         </form>
       <% } else if (!temCliente) { %>
-        <p style="margin-top: 20px;"><a href="login.jsp" class="botao" style="text-decoration:none">Faça login</a> para adicionar ao carrinho.</p>
+        <p style="margin-top: 20px;"><a href="cadastro.jsp" class="botao" style="text-decoration:none">Crie sua conta</a> para adicionar ao carrinho.</p>
       <% } else { %>
         <p class="msg-erro" style="margin-top:20px">Produto indisponível no momento.</p>
       <% } %>

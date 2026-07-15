@@ -180,7 +180,7 @@
           <% } %>
           <div class="wine-card__row">
             <span class="wine-card__price">R$ <%= String.format("%.2f", vinho.getPreco()) %> <small>/ 750ml</small></span>
-            <% if (temCliente && vinho.getEstoque() > 0) { %>
+            <% if (temCliente && !isAdmin && vinho.getEstoque() > 0) { %>
               <form action="carrinho" method="post" style="display:inline">
                 <input type="hidden" name="acao" value="adicionar">
                 <input type="hidden" name="idVinho" value="<%= vinho.getId() %>">
@@ -190,7 +190,7 @@
                 </button>
               </form>
             <% } else if (!temCliente) { %>
-              <a href="login.jsp" class="add-btn">
+              <a href="cadastro.jsp" class="add-btn">
                 <svg class="icon"><use href="#i-plus"></use></svg><span>Adicionar</span>
               </a>
             <% } %>
@@ -207,8 +207,8 @@
 
 </main>
 
-<div class="modal-overlay" id="modalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,0.75);align-items:center;justify-content:center">
-  <div class="modal-card" id="modalCard" style="display:block">
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card" id="modalCard">
     <button class="modal-fechar" onclick="fecharModal()">&times;</button>
     <div class="modal-conteudo">
       <div class="modal-foto">
@@ -230,7 +230,7 @@
           </button>
         </form>
         <p id="modalLogin" style="display:none;margin-top:12px">
-          <a href="login.jsp" class="botao">Faça login</a> para adicionar ao carrinho.
+          <a href="cadastro.jsp" class="botao">Crie sua conta</a> para adicionar ao carrinho.
         </p>
       </div>
     </div>
@@ -268,25 +268,33 @@
     document.getElementById('modalLogin').style.display = 'none';
 
     var estoque = parseInt(card.getAttribute('data-estoque')) || 0;
+    var el = document.getElementById('clienteLogado');
+    var temCliente = !!el;
+    var ehAdmin = el && el.getAttribute('data-tipo') === 'ADMIN';
+
     if (estoque > 0) {
       document.getElementById('modalEstoque').textContent = estoque + ' unidades em estoque';
     } else {
       document.getElementById('modalEstoque').textContent = 'Produto indisponível';
-      document.getElementById('modalForm').style.display = 'none';
     }
 
-    <% if (!temCliente) { %>
+    if (!temCliente || ehAdmin) {
       document.getElementById('modalForm').style.display = 'none';
       document.getElementById('modalLogin').style.display = 'block';
-    <% } %>
+      if (ehAdmin) {
+        document.getElementById('modalLogin').innerHTML = 'Admin n\u00E3o pode adicionar itens \u00E0 sacola.';
+      } else {
+        document.getElementById('modalLogin').innerHTML = '<a href="cadastro.jsp" class="botao">Crie sua conta</a> para adicionar ao carrinho.';
+      }
+    }
 
     document.getElementById('modalForm').querySelector('.add-btn').setAttribute('data-name', card.getAttribute('data-nome'));
     var overlay = document.getElementById('modalOverlay');
-    overlay.style.display = 'flex';
+    overlay.classList.add('is-open');
   }
 
   function fecharModal() {
-    document.getElementById('modalOverlay').style.display = 'none';
+    document.getElementById('modalOverlay').classList.remove('is-open');
   }
 </script>
 </body>

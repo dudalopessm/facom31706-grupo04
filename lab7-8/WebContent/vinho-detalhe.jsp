@@ -59,7 +59,7 @@
   <div class="card">
     <h2><i class="ti ti-photo"></i> Fotos do Vinho</h2>
     <%
-      String fotosDir = application.getRealPath("/arquivos/fotos/" + vId);
+      String fotosDir = "C:\\duda\\workspace\\lab7-8\\arquivos\\fotos\\" + vId;
       File dir = new File(fotosDir);
       File[] fotos = dir.exists() ? dir.listFiles() : null;
       if (fotos == null || fotos.length == 0) {

@@ -17,4 +17,10 @@ public class ConnectionFactory {
         return DriverManager.getConnection("jdbc:mysql://localhost:3306/cave_fontana", "root", "admin");
     }
 
+    public static void closeConnection(Connection conn) {
+        if (conn != null) {
+            try { conn.close(); } catch (SQLException ignored) { }
+        }
+    }
+
 }

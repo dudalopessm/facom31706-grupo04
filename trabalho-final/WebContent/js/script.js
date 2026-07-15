@@ -109,6 +109,11 @@
 
   document.querySelectorAll(".add-btn").forEach(function(btn){
     btn.addEventListener("click", function(e){
+      var temCliente = !!document.getElementById('clienteLogado');
+      if (!temCliente) {
+        window.location.href = 'cadastro.jsp';
+        return;
+      }
       e.preventDefault();
       var form = btn.closest("form");
       if(form){

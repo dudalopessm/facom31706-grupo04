@@ -69,7 +69,7 @@ public class AdminServlet extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.getRequestDispatcher("/erro.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/erro.jsp");
         }
     }
 
@@ -100,6 +100,7 @@ public class AdminServlet extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         try {
             dao.excluir(id);
+            request.getSession().setAttribute("flashOk", "Categoria exclu\u00EDda com sucesso.");
             response.sendRedirect(request.getContextPath() + "/sucesso.jsp?voltar=" + URLEncoder.encode("admin/categorias.jsp", "UTF-8"));
         } catch (SQLException e) {
             String msg;
@@ -108,11 +109,11 @@ public class AdminServlet extends HttpServlet {
             } else {
                 msg = "Erro de banco ao excluir categoria: " + e.getMessage();
             }
-            response.sendRedirect(request.getContextPath() + "/sucesso.jsp?voltar=" + URLEncoder.encode("admin/categorias.jsp", "UTF-8")
-                + "&erro=" + URLEncoder.encode(msg, "UTF-8"));
+            request.getSession().setAttribute("flashErro", msg);
+            response.sendRedirect(request.getContextPath() + "/sucesso.jsp?erro=1&voltar=" + URLEncoder.encode("admin/categorias.jsp", "UTF-8"));
         } catch (Exception e) {
-            response.sendRedirect(request.getContextPath() + "/sucesso.jsp?voltar=" + URLEncoder.encode("admin/categorias.jsp", "UTF-8")
-                + "&erro=" + URLEncoder.encode("Erro inesperado ao excluir categoria: " + e.getMessage(), "UTF-8"));
+            request.getSession().setAttribute("flashErro", "Erro inesperado ao excluir categoria: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/sucesso.jsp?erro=1&voltar=" + URLEncoder.encode("admin/categorias.jsp", "UTF-8"));
         }
     }
 
@@ -122,6 +123,7 @@ public class AdminServlet extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         try {
             dao.excluir(id);
+            request.getSession().setAttribute("flashOk", "Vinho exclu\u00EDdo com sucesso.");
             response.sendRedirect(request.getContextPath() + "/sucesso.jsp?voltar=" + URLEncoder.encode("admin/vinhos.jsp", "UTF-8"));
         } catch (SQLException e) {
             String msg;
@@ -137,11 +139,11 @@ public class AdminServlet extends HttpServlet {
             } else {
                 msg = "Erro de banco ao excluir vinho: " + e.getMessage();
             }
-            response.sendRedirect(request.getContextPath() + "/sucesso.jsp?voltar=" + URLEncoder.encode("admin/vinhos.jsp", "UTF-8")
-                + "&erro=" + URLEncoder.encode(msg, "UTF-8"));
+            request.getSession().setAttribute("flashErro", msg);
+            response.sendRedirect(request.getContextPath() + "/sucesso.jsp?erro=1&voltar=" + URLEncoder.encode("admin/vinhos.jsp", "UTF-8"));
         } catch (Exception e) {
-            response.sendRedirect(request.getContextPath() + "/sucesso.jsp?voltar=" + URLEncoder.encode("admin/vinhos.jsp", "UTF-8")
-                + "&erro=" + URLEncoder.encode("Erro inesperado ao excluir vinho: " + e.getMessage(), "UTF-8"));
+            request.getSession().setAttribute("flashErro", "Erro inesperado ao excluir vinho: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/sucesso.jsp?erro=1&voltar=" + URLEncoder.encode("admin/vinhos.jsp", "UTF-8"));
         }
     }
 

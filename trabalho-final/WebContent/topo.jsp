@@ -147,5 +147,5 @@
 </div>
 
 <% if (temCliente) { %>
-<div style="display:none" id="clienteLogado" data-email="<%= clienteLogado.getEmail() %>" data-nome="<%= clienteLogado.getNome() %>"></div>
+<div style="display:none" id="clienteLogado" data-email="<%= clienteLogado.getEmail() %>" data-nome="<%= clienteLogado.getNome() %>" data-tipo="<%= clienteLogado.getTipo() %>"></div>
 <% } %>

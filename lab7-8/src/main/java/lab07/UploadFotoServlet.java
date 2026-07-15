@@ -61,7 +61,7 @@ public class UploadFotoServlet extends HttpServlet {
             }
 
             int idVinho = Integer.parseInt(idVinhoStr);
-            String diretorio = getServletContext().getRealPath("/arquivos/fotos/" + idVinho);
+            String diretorio = "C:\\duda\\workspace\\lab7-8\\arquivos\\fotos\\" + idVinho;
             File dir = new File(diretorio);
             if (!dir.exists()) {
                 dir.mkdirs();

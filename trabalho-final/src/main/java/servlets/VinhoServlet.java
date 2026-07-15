@@ -1,6 +1,7 @@
 package servlets;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -46,20 +47,18 @@ public class VinhoServlet extends HttpServlet {
             upload.setExtensoesPermitidas("jpg,jpeg,png");
 
             if (!upload.processarUpload(request)) {
-                request.setAttribute("erro", upload.getErro() != null ? upload.getErro() : "Erro ao processar upload.");
-                request.getRequestDispatcher("/admin/" + paginaErro).forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/admin/" + paginaErro + "?erro=" + URLEncoder.encode(upload.getErro() != null ? upload.getErro() : "Erro ao processar upload.", "UTF-8"));
                 return;
             }
 
             int safra = Integer.parseInt(upload.getParametro("safra"));
             if (safra < 1900) {
-                request.setAttribute("erro", "A safra deve ser maior ou igual a 1900.");
-                request.getRequestDispatcher("/admin/" + paginaErro).forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/admin/" + paginaErro + "?erro=" + URLEncoder.encode("A safra deve ser maior ou igual a 1900.", "UTF-8"));
                 return;
             }
 
             Vinho vinho;
-            int id;
+            int id = 0;
 
             if ("alterar".equals(acao)) {
                 id = Integer.parseInt(upload.getParametro("id"));
@@ -89,8 +88,7 @@ public class VinhoServlet extends HttpServlet {
                 if (upload.salvarArquivo(getServletContext(), id)) {
                     vinhoDAO.atualizarCaminhoFoto(id, "images/vinhos/" + id + ".jpg");
                 } else {
-                    request.setAttribute("aviso", "Vinho salvo, mas houve problema ao salvar a foto: " + upload.getErro());
-                    request.getRequestDispatcher("/admin/" + paginaErro).forward(request, response);
+                    response.sendRedirect(request.getContextPath() + "/admin/" + paginaErro + "?aviso=" + URLEncoder.encode("Vinho salvo, mas houve problema ao salvar a foto: " + upload.getErro(), "UTF-8"));
                     return;
                 }
             }
@@ -98,8 +96,7 @@ public class VinhoServlet extends HttpServlet {
             response.sendRedirect("vinhos.jsp");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("erro", "Erro: " + e.getMessage());
-            request.getRequestDispatcher("/admin/" + paginaErro).forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/admin/" + paginaErro + "?erro=" + URLEncoder.encode("Erro: " + e.getMessage(), "UTF-8"));
         }
     }
 

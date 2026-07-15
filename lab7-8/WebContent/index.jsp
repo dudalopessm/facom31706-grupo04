@@ -11,7 +11,7 @@
 
   <div class="sections">
     <div class="card">
-      <div class="card-head"><i class="ti ti-tag"></i><span>Categorias de Vinho</span></div>
+      <div class="card-head"><i class="ti ti-tag"></i><<span>Categorias de Vinho</span></div>
       <p>Cadastrar, alterar, consultar e remover categorias de vinhos.</p>
       <div class="actions">
         <a class="btn primary" href="categoria-vinho.jsp"><i class="ti ti-tag"></i> Acessar</a>

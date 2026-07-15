@@ -28,7 +28,7 @@ public class CarrinhoServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("clienteLogado") == null) {
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/cadastro.jsp");
             return;
         }
 
@@ -48,7 +48,7 @@ public class CarrinhoServlet extends HttpServlet {
 
                 Vinho vinho = vinhoDAO.buscarPorId(idVinho);
                 if (vinho == null) {
-                    request.getRequestDispatcher("loja.jsp").forward(request, response);
+                    response.sendRedirect(request.getContextPath() + "/loja.jsp");
                     return;
                 }
 
@@ -61,9 +61,7 @@ public class CarrinhoServlet extends HttpServlet {
                 }
 
                 if (qtdAtual + quantidade > vinho.getEstoque()) {
-                    request.setAttribute("erro", "estoque_insuficiente");
-                    request.setAttribute("idVinho", idVinho);
-                    request.getRequestDispatcher("vinho.jsp").forward(request, response);
+                    response.sendRedirect(request.getContextPath() + "/vinho.jsp?id=" + idVinho + "&erro=estoque_insuficiente");
                     return;
                 }
 
@@ -87,7 +85,7 @@ public class CarrinhoServlet extends HttpServlet {
                     itemDAO.inserir(item);
                 }
 
-                request.getRequestDispatcher("carrinho.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/carrinho.jsp");
             } else if ("atualizar".equals(acao)) {
                 int idVinho = Integer.parseInt(request.getParameter("idVinho"));
                 int quantidade = Integer.parseInt(request.getParameter("quantidade"));
@@ -99,7 +97,7 @@ public class CarrinhoServlet extends HttpServlet {
                         itemDAO.atualizarQuantidade(sacola.getId(), idVinho, quantidade);
                     }
                 }
-                request.getRequestDispatcher("carrinho.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/carrinho.jsp");
             } else if ("remover".equals(acao)) {
                 int idVinho = Integer.parseInt(request.getParameter("idVinho"));
 
@@ -108,7 +106,7 @@ public class CarrinhoServlet extends HttpServlet {
                     if (item != null) {
                         if (item.getQuantidade() > 1) {
                             itemDAO.atualizarQuantidade(sacola.getId(), idVinho, item.getQuantidade() - 1);
-                            request.getRequestDispatcher("carrinho.jsp").forward(request, response);
+                            response.sendRedirect(request.getContextPath() + "/carrinho.jsp");
                             return;
                         } else {
                             itemDAO.remover(sacola.getId(), idVinho);
@@ -121,16 +119,16 @@ public class CarrinhoServlet extends HttpServlet {
                 }
                 response.sendRedirect(request.getContextPath() + "/sucesso.jsp?voltar=" + URLEncoder.encode("carrinho.jsp", "UTF-8"));
             } else {
-                request.getRequestDispatcher("loja.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/loja.jsp");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.getRequestDispatcher("erro.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/erro.jsp");
         }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("carrinho.jsp").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/carrinho.jsp");
     }
 }

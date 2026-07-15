@@ -22,8 +22,7 @@ public class LoginServlet extends HttpServlet {
         String senha = request.getParameter("senha");
 
         if (email == null || senha == null || email.trim().isEmpty() || senha.trim().isEmpty()) {
-            request.setAttribute("erro", "campos_vazios");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/login.jsp?erro=campos_vazios");
             return;
         }
 
@@ -36,18 +35,16 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("clienteLogado", cliente);
                 response.sendRedirect("loja.jsp");
             } else {
-                request.setAttribute("erro", "invalido");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/login.jsp?erro=invalido");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("erro", "erro_interno");
-            request.getRequestDispatcher("erro.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/erro.jsp");
         }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("login.jsp").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/login.jsp");
     }
 }

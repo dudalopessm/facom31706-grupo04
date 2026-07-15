@@ -34,7 +34,7 @@ public class CheckoutServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("clienteLogado") == null) {
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/cadastro.jsp");
             return;
         }
 
@@ -46,15 +46,13 @@ public class CheckoutServlet extends HttpServlet {
 
             Sacola sacola = sacolaDAO.buscarAtivaPorCliente(cliente.getEmail());
             if (sacola == null) {
-                request.setAttribute("erro", "sacola_vazia");
-                request.getRequestDispatcher("carrinho.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/carrinho.jsp?erro=sacola_vazia");
                 return;
             }
 
             List<ItemSacola> itens = itemSacolaDAO.listarPorSacola(sacola.getId());
             if (itens.isEmpty()) {
-                request.setAttribute("erro", "sacola_vazia");
-                request.getRequestDispatcher("carrinho.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/carrinho.jsp?erro=sacola_vazia");
                 return;
             }
 
@@ -96,8 +94,7 @@ public class CheckoutServlet extends HttpServlet {
                 }
 
                 conn.commit();
-                request.setAttribute("idPedido", idPedido);
-                request.getRequestDispatcher("confirmacao.jsp").forward(request, response);
+                response.sendRedirect(request.getContextPath() + "/confirmacao.jsp?idPedido=" + idPedido);
             } catch (Exception ex) {
                 if (conn != null) {
                     try { conn.rollback(); } catch (SQLException rb) { }
@@ -111,12 +108,12 @@ public class CheckoutServlet extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.getRequestDispatcher("erro.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/erro.jsp");
         }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("checkout.jsp").forward(request, response);
+        response.sendRedirect(request.getContextPath() + "/checkout.jsp");
     }
 }

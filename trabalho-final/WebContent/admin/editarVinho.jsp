@@ -22,7 +22,9 @@
     List<CategoriaVinho> categorias = catDAO.listarTodos();
 
     String mensagemErro = (String) request.getAttribute("erro");
+    if (mensagemErro == null) mensagemErro = request.getParameter("erro");
     String mensagemAviso = (String) request.getAttribute("aviso");
+    if (mensagemAviso == null) mensagemAviso = request.getParameter("aviso");
 %>
 <!DOCTYPE html>
 <html lang="pt-BR">

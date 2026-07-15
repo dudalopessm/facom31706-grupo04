@@ -8,6 +8,7 @@
     }
 
     String mensagemErro = (String) request.getAttribute("erro");
+    if (mensagemErro == null) mensagemErro = request.getParameter("erro");
     String mensagemAviso = (String) request.getAttribute("aviso");
 
     CategoriaVinhoDAO catDAO = new CategoriaVinhoDAO();

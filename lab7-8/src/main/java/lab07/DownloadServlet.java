@@ -31,7 +31,7 @@ public class DownloadServlet extends HttpServlet {
 
         arquivo = URLDecoder.decode(arquivo, StandardCharsets.UTF_8.name());
 
-        String baseDir = getServletContext().getRealPath("/arquivos");
+        String baseDir = "C:\\duda\\workspace\\lab7-8\\arquivos";
         String fullPath;
         if (dirParam != null && !dirParam.trim().isEmpty()) {
             fullPath = baseDir + File.separator + dirParam + File.separator + arquivo;

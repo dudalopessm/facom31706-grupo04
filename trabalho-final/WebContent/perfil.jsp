@@ -21,6 +21,7 @@
     }
 
     String erroPerfil = (String) request.getAttribute("erroPerfil");
+    if (erroPerfil == null) erroPerfil = request.getParameter("erroPerfil");
     String sucesso = request.getParameter("sucesso");
 %>
 
